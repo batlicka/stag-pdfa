@@ -3,6 +3,7 @@ package org;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.resources.ApiResouce;
 
 public class DropwizardApplication extends Application<DropwizardConfiguration> {
 
@@ -23,7 +24,8 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
     @Override
     public void run(final DropwizardConfiguration configuration,
                     final Environment environment) {
-        // TODO: implement application
+        final ApiResouce restApi = new ApiResouce();
+        environment.jersey().register(restApi);
     }
 
 }
