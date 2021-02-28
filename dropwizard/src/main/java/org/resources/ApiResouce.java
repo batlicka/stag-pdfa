@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -18,10 +19,15 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+
+import org.eclipse.jetty.http.MetaData;
+import org.eclipse.jetty.server.Response;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Link.Builder;
+import javax.ws.rs.ext.RuntimeDelegate;
 
 import java.io.*;
 import java.util.Optional;
@@ -59,26 +65,34 @@ public final class ApiResouce {
 
     }
 
-    @GET
+    /*@GET
     @Path("/{PathParam}/test2")
     @Produces(MediaType.TEXT_PLAIN)
     public String getConstant(@PathParam("PathParam") String PathParam){
         return "This is your PathParameter: "+ PathParam;
 
 
+    }*/
+
+    @GET
+    @Path("/ok")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getOkResponse(){
+
+
+        return  "{\"hello\": \"This is a JSON response\"}";
+
     }
 
 
-
-
-   /* @POST
-    @Path("/validate/auto")
+    @POST
+    @Path("/{profileId}")
     @Produces(MediaType.APPLICATION_JSON)
     public static String safePdf(@PathParam("profileId") String profileId,
                           @FormDataParam("sha1Hex") String sha1Hex,
                           @FormDataParam("file") InputStream uploadedInputStream) {
 
-        try{
+        /*try{
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:8080/api/validate/auto");//http://pdfa.k.utb.cz:8080/api/validate/auto
         //http://localhost:8080/api/validate/auto
@@ -91,9 +105,9 @@ public final class ApiResouce {
 
         CloseableHttpResponse response = client.execute(httpPost);
 
-            *//*System.out.println(response.getStatusLine().getStatusCode());
+            System.out.println(response.getStatusLine().getStatusCode());
             System.out.println(response.getStatusLine().getProtocolVersion());
-            System.out.println(response.getStatusLine().getReasonPhrase());*//*
+            System.out.println(response.getStatusLine().getReasonPhrase());
 
         String responseString = new BasicResponseHandler().handleResponse(response);
         System.out.println(responseString);
@@ -131,8 +145,8 @@ public final class ApiResouce {
             System.out.println(e6.getMessage());
         }
 
-        return "end of ApacheHTTP client";
+        return "end of ApacheHTTP client";*/
+        return  "{\"hello\": \"This is a JSON response\"}";
 
-
-    }*/
+    }
 }

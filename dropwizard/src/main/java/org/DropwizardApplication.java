@@ -1,6 +1,7 @@
 package org;
 
 import io.dropwizard.Application;
+import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.resources.ApiResouce;
@@ -18,7 +19,7 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
 
     @Override
     public void initialize(final Bootstrap<DropwizardConfiguration> bootstrap) {
-        // TODO: application initialization
+        bootstrap.addBundle(new MultiPartBundle());
     }
 
     @Override
