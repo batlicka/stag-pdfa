@@ -14,26 +14,24 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
-import org.eclipse.jetty.http.MetaData;
-import org.eclipse.jetty.server.Response;
+import org.api.CustomJsonDeserializer;
+import org.api.CustomResponse;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Link.Builder;
-import javax.ws.rs.ext.RuntimeDelegate;
 
 import java.io.*;
 import java.util.Optional;
 
 @Path("/api")
 public final class ApiResouce {
+    CloseableHttpResponse response;
     @GET
     @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
@@ -57,32 +55,30 @@ public final class ApiResouce {
 
             // If there was, no harm, no foul
         }
-        //////////////////
-        //vyzkoušej zkopírovat input strem z jednoho do druhého a potom uloži do souboru
-        //podívej se na možnosti jak může být vložen soubor do POST requestu v projektu ApacheHTTTPClientStagPdf
-        //////////////////
         return "ahoj: "+ var.toString();
 
     }
 
-    /*@GET
+    @GET
     @Path("/{PathParam}/test2")
     @Produces(MediaType.TEXT_PLAIN)
     public String getConstant(@PathParam("PathParam") String PathParam){
         return "This is your PathParameter: "+ PathParam;
-
-
-    }*/
-
-    @GET
-    @Path("/ok")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getOkResponse(){
-
-
-        return  "{\"hello\": \"This is a JSON response\"}";
-
     }
+
+/*    @GET
+    @Path("/ok")
+    @Produces(MediaType.APPLICATION_XML)//APPLICATION_JSON
+    public Response getOkResponse(){
+        String message = "This is a text response";
+
+        return Response
+                .status(Response.Status.OK)
+                .entity(message)
+                .build();
+
+                https://www.baeldung.com/jax-rs-response
+    }*/
 
 
     @POST
@@ -92,7 +88,7 @@ public final class ApiResouce {
                           @FormDataParam("sha1Hex") String sha1Hex,
                           @FormDataParam("file") InputStream uploadedInputStream) {
 
-        /*try{
+        try{
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:8080/api/validate/auto");//http://pdfa.k.utb.cz:8080/api/validate/auto
         //http://localhost:8080/api/validate/auto
@@ -120,7 +116,7 @@ public final class ApiResouce {
 
             CustomJsonDeserializer des = new CustomJsonDeserializer(rootNode);
 
-            Response responseCurrent=new Response(
+            CustomResponse responseCurrent=new CustomResponse(
                     des.getAttributeValueFromRoot("compliant"),
                     des.getAttributeValueFromRoot("pdfaflavour"),
                     des.getClauseArray()
@@ -130,6 +126,9 @@ public final class ApiResouce {
 
             System.out.println("|Compliant: " + responseCurrent.getCompliant() +"|pdfaflavour: "+responseCurrent.getPdfaflavour());
             System.out.println("List of Clauses: " + responseCurrent.getListRuleViolationClause());
+
+            return String.format("{\"compliant\": \"%s\", \"Pdfaflavour\": \"%s\"}", responseCurrent.getCompliant(), responseCurrent.getPdfaflavour());
+            //return "{\"compliant\": \"This is a JSON response\"}";
 
         }catch(UnrecognizedPropertyException e1){
             System.out.println(e1.getMessage());
@@ -144,9 +143,7 @@ public final class ApiResouce {
         }catch (IOException e6){
             System.out.println(e6.getMessage());
         }
-
-        return "end of ApacheHTTP client";*/
-        return  "{\"hello\": \"This is a JSON response\"}";
+        return "some error occured, error message: To Do...";
 
     }
 }
