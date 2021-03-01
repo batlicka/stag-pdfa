@@ -82,7 +82,7 @@ public final class ApiResouce {
 
 
     @POST
-    @Path("/{profileId}")
+    @Path("/validate/{profileId}")
     @Produces(MediaType.APPLICATION_JSON)
     public static String safePdf(@PathParam("profileId") String profileId,
                           @FormDataParam("sha1Hex") String sha1Hex,
