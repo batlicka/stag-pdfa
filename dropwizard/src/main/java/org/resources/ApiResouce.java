@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -25,13 +26,18 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import java.io.*;
+import java.math.BigInteger;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 @Path("/api")
 public final class ApiResouce {
-    CloseableHttpResponse response;
+    private static final String SHA1_NAME = "SHA-1";
     @GET
     @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
@@ -66,36 +72,77 @@ public final class ApiResouce {
         return "This is your PathParameter: "+ PathParam;
     }
 
-/*    @GET
+    @GET
     @Path("/ok")
-    @Produces(MediaType.APPLICATION_XML)//APPLICATION_JSON
+    @Produces(MediaType.APPLICATION_JSON)//APPLICATION_JSON
     public Response getOkResponse(){
-        String message = "This is a text response";
+        //https://www.baeldung.com/jax-rs-response
+        String message = "{\"hello\": \"This is a JSON response\"}";
 
         return Response
                 .status(Response.Status.OK)
                 .entity(message)
+                .type(MediaType.APPLICATION_JSON)
                 .build();
 
-                https://www.baeldung.com/jax-rs-response
-    }*/
+                //https://www.baeldung.com/jax-rs-response
+    }
+@POST
+@Path("/calsha")
+@Consumes(MediaType.MULTIPART_FORM_DATA)
+@Produces(MediaType.APPLICATION_JSON)
+public static String calculateSHA(@FormDataParam("file") InputStream uploadedInputStream) throws NoSuchAlgorithmException,IOException {
 
+    String sha1Hex = org.apache.commons.codec.digest.DigestUtils.sha1Hex(uploadedInputStream);
+    System.out.println("sha1 calculated from uploadedInputStream: " + sha1Hex);
+
+    String value = "this is a test";
+
+    String sha1 = "";
+
+    // With the java libraries
+    //https://www.baeldung.com/convert-input-stream-to-array-of-bytes
+    try {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        digest.reset();
+        byte[] data = IOUtils.toByteArray(uploadedInputStream);
+        //digest.update(value.getBytes("utf8"));
+        digest.update(data);
+        sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
+    } catch (Exception e){
+        e.printStackTrace();
+    }
+
+    System.out.println( "The sha1 of \""+ value + "\" is:");
+    System.out.println( sha1 );
+    System.out.println();
+
+    MessageDigest sha11 = MessageDigest.getInstance(SHA1_NAME);
+    //DigestInputStream dis = new DigestInputStream(uploadedInputStream, sha1);
+    if (sha1Hex.equalsIgnoreCase(Hex.encodeHexString(sha11.digest()))) {
+        System.out.println("sha1 are same");
+    }
+    return "this is calculated sha1";
+}
 
     @POST
     @Path("/validate/{profileId}")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public static String safePdf(@PathParam("profileId") String profileId,
                           @FormDataParam("sha1Hex") String sha1Hex,
-                          @FormDataParam("file") InputStream uploadedInputStream) {
+                          @FormDataParam("file") InputStream uploadedInputStream) throws NoSuchAlgorithmException,IOException {
+        System.out.println(String.format("accepted sha1Hex: %s",sha1Hex));
 
         try{
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:8080/api/validate/auto");//http://pdfa.k.utb.cz:8080/api/validate/auto
-        //http://localhost:8080/api/validate/auto
+        //http://localhost:9090/api/validate/auto
         //http://pdfa.k.utb.cz:8080/api/validate/auto
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addBinaryBody("file", uploadedInputStream);
+        //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
         HttpEntity multipart = builder.build();
         httpPost.setEntity(multipart);
 
@@ -127,8 +174,9 @@ public final class ApiResouce {
             System.out.println("|Compliant: " + responseCurrent.getCompliant() +"|pdfaflavour: "+responseCurrent.getPdfaflavour());
             System.out.println("List of Clauses: " + responseCurrent.getListRuleViolationClause());
 
+
             return String.format("{\"compliant\": \"%s\", \"Pdfaflavour\": \"%s\"}", responseCurrent.getCompliant(), responseCurrent.getPdfaflavour());
-            //return "{\"compliant\": \"This is a JSON response\"}";
+
 
         }catch(UnrecognizedPropertyException e1){
             System.out.println(e1.getMessage());
