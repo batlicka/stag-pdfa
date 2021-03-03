@@ -1,23 +1,24 @@
 package org.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CustomResponse {
     private String compliant;
     private String pdfaflavour;
-    private List<String> listRuleViolationClause;
+    private ArrayList<String> ruleValidationExceptions;
 
     public CustomResponse() {
     }
 
-    public CustomResponse(String compliant, String pdfaflavour, List<String> Clause) {
+    public CustomResponse(String compliant, String pdfaflavour, ArrayList<String> ruleValidationExceptions) {
         this.compliant = compliant;
         this.pdfaflavour = pdfaflavour;
-        this.listRuleViolationClause = Clause;
+        this.ruleValidationExceptions = ruleValidationExceptions;
     }
 
-    public void setListRuleViolationClause(List<String> Clause) {
-        this.listRuleViolationClause = Clause;
+    public void setRuleValidationExceptions(ArrayList<String> ruleValidationExceptions) {
+        this.ruleValidationExceptions = ruleValidationExceptions;
     }
 
     public String getCompliant() {
@@ -36,9 +37,11 @@ public class CustomResponse {
         this.pdfaflavour = pdfaflavour;
     }
 
-
-    public List<String> getListRuleViolationClause() {
-        return listRuleViolationClause;
+    public ArrayList<String> getRuleValidationExceptions() {
+        return ruleValidationExceptions;
     }
 
+    public void intersectionRuleValidationExceptons(ArrayList<String> setOfExceptionsFromFile) {
+        ruleValidationExceptions.removeAll(setOfExceptionsFromFile);
+    }
 }
