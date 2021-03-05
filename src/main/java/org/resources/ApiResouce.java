@@ -45,7 +45,7 @@ import java.util.Optional;
 public final class
 ApiResouce {
     private static final String SHA1_NAME = "SHA-1";
-    private static CustomJsonFileDeserializer fileDes = new CustomJsonFileDeserializer(new File("RuleViolationException.json"));
+    private static CustomJsonFileDeserializer fileDes = new CustomJsonFileDeserializer(new File("config\\RuleViolationException.json"));
     private static final ArrayList<String> RuleViolationException = fileDes.deserializer();
 
     @GET
@@ -173,7 +173,7 @@ ApiResouce {
             HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:7070/api/validate/auto");
             //http://localhost:9090/api/validate/auto
             //http://pdfa.k.utb.cz:8080/api/validate/auto
-            httpPost.setHeader("Content-Type:", "application/json");//Content-Type: application/json
+            httpPost.setHeader("Accept", "application/json");
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("file", uploadedInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
@@ -251,7 +251,10 @@ ApiResouce {
             System.out.println(e5.getMessage());
         } catch (IOException e6) {
             System.out.println(e6.getMessage());
-        }
+        }/*catch(Exception all){
+            System.out.println(all.getMessage());
+            System.out.println(all.getCause());
+        }*/
         return "some error occured, error message: To Do...";
 
     }
