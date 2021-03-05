@@ -1,11 +1,17 @@
 package org.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class CustomResponse {
     private String compliant;
+    //explanation of @JsonIgnore
+    //https://www.baeldung.com/jackson-annotations
+    @JsonIgnore
     private String pdfaflavour;
+    @JsonIgnore
     private ArrayList<String> ruleValidationExceptions;
 
     public CustomResponse() {

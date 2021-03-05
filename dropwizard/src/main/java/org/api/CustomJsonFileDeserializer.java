@@ -34,10 +34,10 @@ public class CustomJsonFileDeserializer {
             }
             return arr;
         } catch (JsonProcessingException e1) {
-            System.out.println(e1.getMessage().toString());
+            System.out.println(e1.getMessage());
             return null;
         } catch (IOException e2) {
-            System.out.println(e2.getMessage().toString());
+            System.out.println(e2.getMessage());
             return null;
         }
     }

@@ -16,6 +16,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -41,7 +42,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Path("/api")
-public final class ApiResouce {
+public final class
+ApiResouce {
     private static final String SHA1_NAME = "SHA-1";
     private static CustomJsonFileDeserializer fileDes = new CustomJsonFileDeserializer(new File("RuleViolationException.json"));
     private static final ArrayList<String> RuleViolationException = fileDes.deserializer();
@@ -162,12 +164,13 @@ public final class ApiResouce {
     @Produces(MediaType.APPLICATION_JSON)
     public static String safePdf(@PathParam("profileId") String profileId,
                                  @FormDataParam("sha1Hex") String sha1Hex,
-                                 @FormDataParam("file") InputStream uploadedInputStream) throws NoSuchAlgorithmException, IOException {
+                                 @FormDataParam("file") InputStream uploadedInputStream) {
         System.out.println(String.format("accepted sha1Hex: %s", sha1Hex));
 
         try {
+            String responseMessage="";
             CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:8080/api/validate/auto");//http://pdfa.k.utb.cz:8080/api/validate/auto
+            HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:8080/api/validate/auto");
             //http://localhost:9090/api/validate/auto
             //http://pdfa.k.utb.cz:8080/api/validate/auto
 
@@ -187,35 +190,52 @@ public final class ApiResouce {
             String responseString = new BasicResponseHandler().handleResponse(response);
             System.out.println(responseString);
 
+            //https://stackoverflow.com/questions/9077933/how-to-find-http-media-type-mime-type-from-response
+            HttpEntity entity = response.getEntity();
+            ContentType contentType;
+            String mimeType="";
+            if (entity != null){
+                contentType = ContentType.get(entity);
+                mimeType= contentType.getMimeType();
+            }
 
-            // parse JSON
-            ObjectMapper mapper = new ObjectMapper();
+            if(mimeType.equalsIgnoreCase("application/json")) {
+                // parse JSON
+                ObjectMapper mapper = new ObjectMapper();
 
-            JsonNode rootNode = mapper.readTree(responseString);
+                JsonNode rootNode = mapper.readTree(responseString);
 
-            CustomJsonDeserializer des = new CustomJsonDeserializer(rootNode);
+                CustomJsonDeserializer des = new CustomJsonDeserializer(rootNode);
 
-            CustomResponse responseCurrent = new CustomResponse(
-                    des.getAttributeValueFromRoot("compliant"),
-                    des.getAttributeValueFromRoot("pdfaflavour"),
-                    des.getTestAssertionsArray()
-            );
-            //rest api rozhodne, jak se výjimka ošetří
-            //na zobrazování chyb použít běžné http kody a chybu specifikovat v jeho správě
+                CustomResponse responseCurrent = new CustomResponse(
+                        des.getAttributeValueFromRoot("compliant"),
+                        des.getAttributeValueFromRoot("pdfaflavour"),
+                        des.getTestAssertionsArray()
+                );
+                //rest api rozhodne, jak se výjimka ošetří
+                //na zobrazování chyb použít běžné http kody a chybu specifikovat v jeho správě
 
-            System.out.println("|Compliant: " + responseCurrent.getCompliant() + "|pdfaflavour: " + responseCurrent.getPdfaflavour());
-            System.out.println("List of Clauses: " + responseCurrent.getRuleValidationExceptions());
+                System.out.println("|Compliant: " + responseCurrent.getCompliant() + "|pdfaflavour: " + responseCurrent.getPdfaflavour());
+                System.out.println("List of Clauses: " + responseCurrent.getRuleValidationExceptions());
 
-            //decision logic agreed on google docs
-            if (responseCurrent.getCompliant().equalsIgnoreCase("true")) {
-                return String.format("{\"compliant\": \"%s\"}", responseCurrent.getCompliant());
-            } else {
-                responseCurrent.intersectionRuleValidationExceptons(RuleViolationException);
-                if (responseCurrent.getRuleValidationExceptions().isEmpty()) {
-                    return String.format("{\"compliant\": \"true\"}", responseCurrent.getPdfaflavour());
+                //decision logic agreed on google docs
+                if (responseCurrent.getCompliant().equalsIgnoreCase("true")) {
+                    responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
+                    return responseMessage;
                 } else {
-                    return String.format("{\"compliant\": \"%s\"}", responseCurrent.getCompliant());
+                    responseCurrent.intersectionRuleValidationExceptons(RuleViolationException);
+                    if (responseCurrent.getRuleValidationExceptions().isEmpty()) {
+                        responseCurrent.setCompliant("true");
+                        responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
+                        return responseMessage;
+                    } else {
+                        responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
+                        return responseMessage;
+                    }
                 }
+            }else{
+                //from veraPdf-rest was returned response in different Content-type than "application/json"
+                return "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
             }
 
 
