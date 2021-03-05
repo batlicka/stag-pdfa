@@ -161,7 +161,7 @@ ApiResouce {
     @POST
     @Path("/validate/{profileId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON})
     public static String safePdf(@PathParam("profileId") String profileId,
                                  @FormDataParam("sha1Hex") String sha1Hex,
                                  @FormDataParam("file") InputStream uploadedInputStream) {
@@ -173,7 +173,7 @@ ApiResouce {
             HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:7070/api/validate/auto");
             //http://localhost:9090/api/validate/auto
             //http://pdfa.k.utb.cz:8080/api/validate/auto
-
+            httpPost.setHeader("Content-Type:", "application/json");//Content-Type: application/json
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("file", uploadedInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
