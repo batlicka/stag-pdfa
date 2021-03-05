@@ -170,7 +170,7 @@ ApiResouce {
         try {
             String responseMessage="";
             CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:8080/api/validate/auto");
+            HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:7070/api/validate/auto");
             //http://localhost:9090/api/validate/auto
             //http://pdfa.k.utb.cz:8080/api/validate/auto
 
