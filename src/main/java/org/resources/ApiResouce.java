@@ -1,6 +1,7 @@
 package org.resources;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,11 +43,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Path("/api")
-public final class
-ApiResouce {
+public final class ApiResouce {
     private static final String SHA1_NAME = "SHA-1";
-    private static CustomJsonFileDeserializer fileDes = new CustomJsonFileDeserializer(new File("config\\RuleViolationException.json"));
-    private static final ArrayList<String> RuleViolationException = fileDes.deserializer();
+    private static ArrayList<String> RuleViolationException;
+    private static String urlToVeraPDFrest;
+    private static String pathToRuleViolationExceptionFile;
+
+    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile){
+        this.urlToVeraPDFrest=urlToVeraPDFrest;
+        this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
+        CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
+        RuleViolationException=fileDes.deserializer();
+    }
 
     @GET
     @Path("/test")
@@ -170,7 +178,7 @@ ApiResouce {
         try {
             String responseMessage="";
             CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost("http://pdfa.k.utb.cz:7070/api/validate/auto");
+            HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
             //http://localhost:9090/api/validate/auto
             //http://pdfa.k.utb.cz:8080/api/validate/auto
             httpPost.setHeader("Accept", "application/json");

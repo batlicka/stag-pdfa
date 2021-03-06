@@ -7,4 +7,27 @@ import javax.validation.constraints.*;
 
 public class DropwizardConfiguration extends Configuration {
     // TODO: implement service configuration
+    @NotNull
+    private String urlToVeraPDFrest;
+
+    @NotNull
+    private String pathToRuleViolationExceptionFile;
+
+    @JsonProperty
+    public String getUrlToVeraPDFrest() {
+        return urlToVeraPDFrest;
+    }
+    @JsonProperty
+    public void setUrlToVeraPDFrest(String urlToVeraPDFrest) {
+        this.urlToVeraPDFrest = urlToVeraPDFrest;
+    }
+
+
+    public String getPathToRuleViolationExceptionFile() {
+        return pathToRuleViolationExceptionFile;
+    }
+
+    public void setPathToRuleViolationExceptionFile(String pathToRuleViolationExceptionFile) {
+        this.pathToRuleViolationExceptionFile = pathToRuleViolationExceptionFile;
+    }
 }

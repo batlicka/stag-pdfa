@@ -1,0 +1,15 @@
+#url path to running veraPDF-rest
+urlToVeraPDFrest: http://pdfa.k.utb.cz:7070/api/validate/auto
+pathToRuleViolationExceptionFile: config\RuleViolationException.json
+logging:
+  level: INFO
+  loggers:
+    dropwizard: DEBUG
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
