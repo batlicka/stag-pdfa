@@ -1,4 +1,7 @@
 #url path to running veraPDF-rest
+#pridani custom properties to .yml
+#https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
+#https://www.dropwizard.io/en/latest/manual/core.html#configuration
 urlToVeraPDFrest: http://pdfa.k.utb.cz:7070/api/validate/auto
 pathToRuleViolationExceptionFile: config\RuleViolationException.json
 logging:

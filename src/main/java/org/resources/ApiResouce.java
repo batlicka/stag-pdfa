@@ -52,6 +52,7 @@ public final class ApiResouce {
     public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile){
         this.urlToVeraPDFrest=urlToVeraPDFrest;
         this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
+        //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
         RuleViolationException=fileDes.deserializer();
     }
