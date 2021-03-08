@@ -228,8 +228,9 @@ public final class ApiResouce {
                 System.out.println("4");
                 //decision logic agreed on google docs
                 if (responseCurrent.getCompliant().equalsIgnoreCase("true")) {
+                    System.out.println("5.1");
                     responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                    System.out.println("5");
+                    System.out.println("5.2");
                 } else {
                     responseCurrent.intersectionRuleValidationExceptons(RuleViolationException);
                     System.out.println("6");
