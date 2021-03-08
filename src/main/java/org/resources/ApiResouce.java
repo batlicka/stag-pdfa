@@ -34,6 +34,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -54,7 +55,7 @@ public final class ApiResouce {
         this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
-        RuleViolationException=fileDes.deserializer();
+        this.RuleViolationException=fileDes.deserializer();
     }
 
     @GET
@@ -176,6 +177,10 @@ public final class ApiResouce {
                                  @FormDataParam("file") InputStream uploadedInputStream) {
         System.out.println(String.format("accepted sha1Hex: %s", sha1Hex));
         String responseMessage="";
+
+        CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
+        RuleViolationException=fileDes.deserializer();
+
         try {
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
@@ -269,7 +274,8 @@ public final class ApiResouce {
             System.out.println(e5.getMessage());
         } catch (IOException e6) {
             System.out.println(e6.getMessage());
-        }/*catch(Exception all){
+        }
+        /*catch(Exception all){
             System.out.println(all.getMessage());
             System.out.println(all.getCause());
         }*/
