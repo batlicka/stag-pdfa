@@ -209,14 +209,14 @@ public final class ApiResouce {
 
             // parse JSON if response is in format application/json
             if(mimeType.equalsIgnoreCase("application/json")) {
-                System.out.print("From veraPDF-rest came response in Content-type: application/json");
+                System.out.println("From veraPDF-rest came response in Content-type: application/json");
 
                 ObjectMapper mapper = new ObjectMapper();
-
+                System.out.println("1");
                 JsonNode rootNode = mapper.readTree(responseString);
-
+                System.out.println("2");
                 CustomJsonDeserializer des = new CustomJsonDeserializer(rootNode);
-
+                System.out.println("3");
                 CustomResponse responseCurrent = new CustomResponse(
                         des.getAttributeValueFromRoot("compliant"),
                         des.getAttributeValueFromRoot("pdfaflavour"),
@@ -225,17 +225,21 @@ public final class ApiResouce {
                 //rest api rozhodne, jak se výjimka ošetří
                 //na zobrazování chyb použít běžné http kody a chybu specifikovat v jeho správě
 
-
+                System.out.println("4");
                 //decision logic agreed on google docs
                 if (responseCurrent.getCompliant().equalsIgnoreCase("true")) {
                     responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
+                    System.out.println("5");
                 } else {
                     responseCurrent.intersectionRuleValidationExceptons(RuleViolationException);
+                    System.out.println("6");
                     if (responseCurrent.getRuleValidationExceptions().isEmpty()) {
                         responseCurrent.setCompliant("true");
                         responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
+                        System.out.println("7");
                     } else {
                         responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
+                        System.out.println("8");
                     }
                 }
                 //only for testing purpouse
