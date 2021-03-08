@@ -3,6 +3,8 @@ package org;
 import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.*;
+
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 public class DropwizardConfiguration extends Configuration {
@@ -30,4 +32,6 @@ public class DropwizardConfiguration extends Configuration {
     public void setPathToRuleViolationExceptionFile(String pathToRuleViolationExceptionFile) {
         this.pathToRuleViolationExceptionFile = pathToRuleViolationExceptionFile;
     }
+
+    
 }
