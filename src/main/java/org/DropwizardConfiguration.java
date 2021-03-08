@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.util.ArrayList;
 
 public class DropwizardConfiguration extends Configuration {
     // TODO: implement service configuration
@@ -14,6 +15,7 @@ public class DropwizardConfiguration extends Configuration {
 
     @NotNull
     private String pathToRuleViolationExceptionFile;
+
 
     @JsonProperty
     public String getUrlToVeraPDFrest() {
@@ -33,5 +35,4 @@ public class DropwizardConfiguration extends Configuration {
         this.pathToRuleViolationExceptionFile = pathToRuleViolationExceptionFile;
     }
 
-    
 }

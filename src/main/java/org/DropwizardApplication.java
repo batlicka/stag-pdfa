@@ -27,6 +27,7 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
                     final Environment environment) {
         final ApiResouce restApi = new ApiResouce(configuration.getUrlToVeraPDFrest(),configuration.getPathToRuleViolationExceptionFile());
         environment.jersey().register(restApi);
+
     }
 
 }
