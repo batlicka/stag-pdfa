@@ -175,9 +175,8 @@ public final class ApiResouce {
                                  @FormDataParam("sha1Hex") String sha1Hex,
                                  @FormDataParam("file") InputStream uploadedInputStream) {
         System.out.println(String.format("accepted sha1Hex: %s", sha1Hex));
-
+        String responseMessage="";
         try {
-            String responseMessage="";
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
             //http://localhost:9090/api/validate/auto
@@ -197,7 +196,7 @@ public final class ApiResouce {
             System.out.println(response.getStatusLine().getReasonPhrase());
 
             String responseString = new BasicResponseHandler().handleResponse(response);
-            System.out.println(responseString);
+            //System.out.println(responseString);
 
             //https://stackoverflow.com/questions/9077933/how-to-find-http-media-type-mime-type-from-response
             HttpEntity entity = response.getEntity();
@@ -208,8 +207,10 @@ public final class ApiResouce {
                 mimeType= contentType.getMimeType();
             }
 
+            // parse JSON if response is in format application/json
             if(mimeType.equalsIgnoreCase("application/json")) {
-                // parse JSON
+                System.out.print("From veraPDF-rest came response in Content-type: application/json");
+
                 ObjectMapper mapper = new ObjectMapper();
 
                 JsonNode rootNode = mapper.readTree(responseString);
@@ -224,27 +225,28 @@ public final class ApiResouce {
                 //rest api rozhodne, jak se výjimka ošetří
                 //na zobrazování chyb použít běžné http kody a chybu specifikovat v jeho správě
 
-                System.out.println("|Compliant: " + responseCurrent.getCompliant() + "|pdfaflavour: " + responseCurrent.getPdfaflavour());
-                System.out.println("List of Clauses: " + responseCurrent.getRuleValidationExceptions());
 
                 //decision logic agreed on google docs
                 if (responseCurrent.getCompliant().equalsIgnoreCase("true")) {
                     responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                    return responseMessage;
                 } else {
                     responseCurrent.intersectionRuleValidationExceptons(RuleViolationException);
                     if (responseCurrent.getRuleValidationExceptions().isEmpty()) {
                         responseCurrent.setCompliant("true");
                         responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                        return responseMessage;
                     } else {
                         responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                        return responseMessage;
                     }
                 }
+                //only for testing purpouse
+                System.out.println("result after intersection: ");
+                System.out.println("|Compliant: " + responseCurrent.getCompliant() + "|pdfaflavour: " + responseCurrent.getPdfaflavour());
+                System.out.println("List of Clauses: " + responseCurrent.getRuleValidationExceptions());
+                System.out.println("responseMessage: ");
+                System.out.println(responseMessage);
             }else{
                 //from veraPdf-rest was returned response in different Content-type than "application/json"
-                return "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
+                responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
             }
 
 
@@ -264,7 +266,6 @@ public final class ApiResouce {
             System.out.println(all.getMessage());
             System.out.println(all.getCause());
         }*/
-        return "some error occured, error message: To Do...";
-
+        return responseMessage;
     }
 }
