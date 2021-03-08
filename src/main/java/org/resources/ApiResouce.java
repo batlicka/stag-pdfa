@@ -230,17 +230,19 @@ public final class ApiResouce {
                 if (responseCurrent.getCompliant().equalsIgnoreCase("true")) {
                     System.out.println("5.1");
                     responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                    System.out.println("5.2");
                 } else {
+                    System.out.println("6.1");
                     responseCurrent.intersectionRuleValidationExceptons(RuleViolationException);
-                    System.out.println("6");
+                    System.out.println("6.2");
                     if (responseCurrent.getRuleValidationExceptions().isEmpty()) {
+                        System.out.println("7.1");
                         responseCurrent.setCompliant("true");
+                        System.out.println("7.2");
                         responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                        System.out.println("7");
+                        System.out.println("7.3");
                     } else {
                         responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                        System.out.println("8");
+                        System.out.println("8.1");
                     }
                 }
                 //only for testing purpouse
