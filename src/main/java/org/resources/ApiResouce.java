@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -36,6 +37,7 @@ import javax.ws.rs.core.Response;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
+import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -49,13 +51,15 @@ public final class ApiResouce {
     private static ArrayList<String> RuleViolationException;
     private static String urlToVeraPDFrest;
     private static String pathToRuleViolationExceptionFile;
+    private static String pathToSentFilesFolder;
 
-    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile){
+    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile, String pathToSentFilesFolder){
         this.urlToVeraPDFrest=urlToVeraPDFrest;
         this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
         this.RuleViolationException=fileDes.deserializer();
+        this.pathToSentFilesFolder=pathToSentFilesFolder;
     }
 
     @GET
@@ -135,9 +139,15 @@ public final class ApiResouce {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public static String calculateSHA(@FormDataParam("file") InputStream uploadedInputStream) throws NoSuchAlgorithmException, IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IOUtils.copy(uploadedInputStream, baos);
+        byte[] bytesArrayuploadedInputStream = baos.toByteArray();
+        //clone
+        InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
+        InputStream secondCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
 
-        String sha1Hex = org.apache.commons.codec.digest.DigestUtils.sha1Hex(uploadedInputStream);
-        System.out.println("sha1 calculated from uploadedInputStream: " + sha1Hex);
+        String sha1Hex = org.apache.commons.codec.digest.DigestUtils.sha1Hex(firstCloneUploadedInputStream);
+        System.out.println("sha1 calculated from uploadedInputStream, method1: " + sha1Hex);
 
         String value = "this is a test";
 
@@ -148,10 +158,10 @@ public final class ApiResouce {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
             digest.reset();
-            byte[] data = IOUtils.toByteArray(uploadedInputStream);
             //digest.update(value.getBytes("utf8"));
-            digest.update(data);
+            digest.update(bytesArrayuploadedInputStream);
             sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
+            System.out.println("sha1 calculated from uploadedInputStream, method2: " + sha1);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -178,17 +188,33 @@ public final class ApiResouce {
         System.out.println(String.format("accepted sha1Hex: %s", sha1Hex));
         String responseMessage="";
 
-        CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
-        RuleViolationException=fileDes.deserializer();
-
         try {
+            //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
+            //saveing of uploadedInputStream to pdf in local folder
+            //create byte array from accepted uploadedInputStream
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IOUtils.copy(uploadedInputStream, baos);
+            byte[] bytesArrayuploadedInputStream = baos.toByteArray();
+
+            //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
+            String nameForPdf =calculateSha1Hex(bytesArrayuploadedInputStream);
+            String fullPathIncludedPdfName=pathToSentFilesFolder+nameForPdf+".pdf";
+            File output = new File(fullPathIncludedPdfName);
+            FileOutputStream out =new FileOutputStream(output);
+
+            //clone of input stream for building POST
+            InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
+            out.write(bytesArrayuploadedInputStream);
+            out.close();
+
+
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
             //http://localhost:9090/api/validate/auto
             //http://pdfa.k.utb.cz:8080/api/validate/auto
             httpPost.setHeader("Accept", "application/json");
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("file", uploadedInputStream);
+            builder.addBinaryBody("file", firstCloneUploadedInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
             HttpEntity multipart = builder.build();
             //podívat se zda metoda build streamuje přímo, nebo blokuje
@@ -280,5 +306,22 @@ public final class ApiResouce {
             System.out.println(all.getCause());
         }*/
         return responseMessage;
+    }
+
+    public static String calculateSha1Hex(byte[] bytesArrayuploadedInputStream){
+        // With the java libraries
+        //https://www.baeldung.com/convert-input-stream-to-array-of-bytes
+        String Sha1Hex="";
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            digest.reset();
+            //digest.update(value.getBytes("utf8"));
+            digest.update(bytesArrayuploadedInputStream);
+            Sha1Hex = String.format("%040x", new BigInteger(1, digest.digest()));
+            return Sha1Hex;
+        } catch (Exception e) {
+            e.getMessage();
+            return Sha1Hex;
+        }
     }
 }

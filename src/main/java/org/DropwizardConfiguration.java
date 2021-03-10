@@ -16,6 +16,8 @@ public class DropwizardConfiguration extends Configuration {
     @NotNull
     private String pathToRuleViolationExceptionFile;
 
+    @NotNull
+    private String pathToSentFilesFolder;
 
     @JsonProperty
     public String getUrlToVeraPDFrest() {
@@ -35,4 +37,11 @@ public class DropwizardConfiguration extends Configuration {
         this.pathToRuleViolationExceptionFile = pathToRuleViolationExceptionFile;
     }
 
+    public String getPathToSentFilesFolder() {
+        return pathToSentFilesFolder;
+    }
+
+    public void setPathToSentFilesFolder(String pathToSentFilesFolder) {
+        this.pathToSentFilesFolder = pathToSentFilesFolder;
+    }
 }
