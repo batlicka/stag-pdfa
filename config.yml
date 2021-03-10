@@ -5,7 +5,7 @@
 urlToVeraPDFrest: http://pdfa.k.utb.cz:7070/api/validate/auto
 # na windows musí být cesta config\\RuleViolationException.json
 # na linuxu musí být cesta config/RuleViolationException.json
-pathToRuleViolationExceptionFile: config\\RuleViolationException.json
+pathToRuleViolationExceptionFile: RuleViolationException.json
 
 pathToSentFilesFolder: D:\\tmp\\
 
