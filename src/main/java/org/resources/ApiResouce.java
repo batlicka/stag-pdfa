@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -36,6 +37,7 @@ import javax.ws.rs.core.Response;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
+import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -49,13 +51,15 @@ public final class ApiResouce {
     private static ArrayList<String> RuleViolationException;
     private static String urlToVeraPDFrest;
     private static String pathToRuleViolationExceptionFile;
+    private String pathToSentFilesFolder;
 
-    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile){
+    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile, String pathToSentFilesFolder){
         this.urlToVeraPDFrest=urlToVeraPDFrest;
         this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
         this.RuleViolationException=fileDes.deserializer();
+        this.pathToSentFilesFolder=pathToSentFilesFolder;
     }
 
     @GET
@@ -178,17 +182,28 @@ public final class ApiResouce {
         System.out.println(String.format("accepted sha1Hex: %s", sha1Hex));
         String responseMessage="";
 
-        CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
-        RuleViolationException=fileDes.deserializer();
-
         try {
+            //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
+            //saveing of uploadedInputStream to pdf in local folder
+            File output = new File("D:\\tmp\\output.pdf");
+            FileOutputStream out =new FileOutputStream(output);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IOUtils.copy(uploadedInputStream, baos);
+            byte[] bytesArrayuploadedInputStream = baos.toByteArray();
+            out.close();
+
+            //clone of input stream for building POST
+            InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
+            out.write(bytesArrayuploadedInputStream);
+
+
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
             //http://localhost:9090/api/validate/auto
             //http://pdfa.k.utb.cz:8080/api/validate/auto
             httpPost.setHeader("Accept", "application/json");
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("file", uploadedInputStream);
+            builder.addBinaryBody("file", firstCloneUploadedInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
             HttpEntity multipart = builder.build();
             //podívat se zda metoda build streamuje přímo, nebo blokuje
