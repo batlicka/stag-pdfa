@@ -7,7 +7,7 @@ urlToVeraPDFrest: http://pdfa.k.utb.cz:7070/api/validate/auto
 # na linuxu musí být cesta config/RuleViolationException.json
 pathToRuleViolationExceptionFile: RuleViolationException.json
 
-pathToSentFilesFolder: D:\\tmp\\
+pathToSentFilesFolder: logs/files/
 
 logging:
   level: INFO
@@ -20,4 +20,11 @@ server:
   adminConnectors:
     - type: http
       port: 8081
-
+stagpdfa:
+  exceptions:
+    - 6.1.2
+    - 6.3.2
+    - 6.1.7
+    - 6.2.2
+  pathToSentFilesFolder: logs/files/
+  urlToVeraPDFrest: http://pdfa.k.utb.cz:7070/api/validate/auto
