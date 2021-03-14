@@ -47,7 +47,7 @@ public class CustomResponse {
         return ruleValidationExceptions;
     }
 
-    public void intersectionRuleValidationExceptons(ArrayList<String> setOfExceptionsFromFile) {
+    public void differenceRuleValidationExceptons(ArrayList<String> setOfExceptionsFromFile) {
         ruleValidationExceptions.removeAll(setOfExceptionsFromFile);
     }
 }

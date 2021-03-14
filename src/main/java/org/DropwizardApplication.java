@@ -4,6 +4,7 @@ import io.dropwizard.Application;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.api.SQLite;
 import org.resources.ApiResouce;
 
 public class DropwizardApplication extends Application<DropwizardConfiguration> {
@@ -25,7 +26,8 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
     @Override
     public void run(final DropwizardConfiguration configuration,
                     final Environment environment) {
-        final ApiResouce restApi = new ApiResouce(configuration.getUrlToVeraPDFrest(),configuration.getPathToRuleViolationExceptionFile(),configuration.getPathToSentFilesFolder());
+        SQLite databaseInstance = new SQLite();
+        final ApiResouce restApi = new ApiResouce(configuration.getUrlToVeraPDFrest(),configuration.getPathToRuleViolationExceptionFile(),configuration.getPathToSentFilesFolder(),databaseInstance);
         environment.jersey().register(restApi);
 
     }

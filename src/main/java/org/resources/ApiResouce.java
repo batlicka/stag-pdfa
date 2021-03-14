@@ -1,10 +1,8 @@
 package org.resources;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,8 +10,8 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -27,7 +25,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.api.CustomJsonDeserializer;
 import org.api.CustomJsonFileDeserializer;
 import org.api.CustomResponse;
-import org.api.RuleValidationException;
+import org.api.SQLite;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
@@ -35,15 +33,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-import java.nio.file.StandardCopyOption;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Path("/api")
 public final class ApiResouce {
@@ -52,14 +47,16 @@ public final class ApiResouce {
     private static String urlToVeraPDFrest;
     private static String pathToRuleViolationExceptionFile;
     private static String pathToSentFilesFolder;
+    private static SQLite databaseInstance;
 
-    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile, String pathToSentFilesFolder){
+    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile, String pathToSentFilesFolder, SQLite databaseInstance){
         this.urlToVeraPDFrest=urlToVeraPDFrest;
         this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
         this.RuleViolationException=fileDes.deserializer();
         this.pathToSentFilesFolder=pathToSentFilesFolder;
+        this.databaseInstance = databaseInstance;
     }
 
     @GET
@@ -185,8 +182,15 @@ public final class ApiResouce {
     public static String safePdf(@PathParam("profileId") String profileId,
                                  @FormDataParam("sha1Hex") String sha1Hex,
                                  @FormDataParam("file") InputStream uploadedInputStream) {
+        //time of processing on stag-pdfa
+        StopWatch request_time = StopWatch.createStarted();
+        //time of processing on veraPdf-rest
+        StopWatch verapdf_rest_request_time = new StopWatch();
+
         System.out.println(String.format("accepted sha1Hex: %s", sha1Hex));
         String responseMessage="";
+        String nameForPdf="";
+        String vera_pdf_rest_response="";
 
         try {
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
@@ -197,7 +201,7 @@ public final class ApiResouce {
             byte[] bytesArrayuploadedInputStream = baos.toByteArray();
 
             //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
-            String nameForPdf =calculateSha1Hex(bytesArrayuploadedInputStream);
+            nameForPdf =calculateSha1Hex(bytesArrayuploadedInputStream);
             String fullPathIncludedPdfName=pathToSentFilesFolder+nameForPdf+".pdf";
             File output = new File(fullPathIncludedPdfName);
             FileOutputStream out =new FileOutputStream(output);
@@ -220,7 +224,11 @@ public final class ApiResouce {
             //podívat se zda metoda build streamuje přímo, nebo blokuje
             httpPost.setEntity(multipart);
 
+            //before execute client, start timer2, It will measure how long veraPDF-rest processing request.
+            verapdf_rest_request_time.start();
             CloseableHttpResponse response = client.execute(httpPost);
+            //after obtaining response from veraPDF-rest stop stopwatch2
+            verapdf_rest_request_time.stop();
 
             System.out.println(response.getStatusLine().getStatusCode());
             System.out.println(response.getStatusLine().getProtocolVersion());
@@ -253,6 +261,9 @@ public final class ApiResouce {
                         des.getAttributeValueFromRoot("pdfaflavour"),
                         des.getTestAssertionsArray()
                 );
+                //logování veraPDF-rest comliant to SQLite database with logs
+                vera_pdf_rest_response = responseCurrent.getCompliant();
+
                 //rest api rozhodne, jak se výjimka ošetří
                 //na zobrazování chyb použít běžné http kody a chybu specifikovat v jeho správě
 
@@ -263,7 +274,7 @@ public final class ApiResouce {
                     responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
                 } else {
                     System.out.println("6.1");
-                    responseCurrent.intersectionRuleValidationExceptons(RuleViolationException);
+                    responseCurrent.differenceRuleValidationExceptons(RuleViolationException);
                     System.out.println("6.2");
                     if (responseCurrent.getRuleValidationExceptions().isEmpty()) {
                         System.out.println("7.1");
@@ -277,7 +288,7 @@ public final class ApiResouce {
                     }
                 }
                 //only for testing purpouse
-                System.out.println("result after intersection: ");
+                System.out.println("result after difference of sets: ");
                 System.out.println("|Compliant: " + responseCurrent.getCompliant() + "|pdfaflavour: " + responseCurrent.getPdfaflavour());
                 System.out.println("List of Clauses: " + responseCurrent.getRuleValidationExceptions());
                 System.out.println("responseMessage: ");
@@ -301,10 +312,11 @@ public final class ApiResouce {
         } catch (IOException e6) {
             System.out.println(e6.getMessage());
         }
-        /*catch(Exception all){
-            System.out.println(all.getMessage());
-            System.out.println(all.getCause());
-        }*/
+        request_time.stop();
+
+        //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
+        databaseInstance.insertStagpdfaLogs(nameForPdf,vera_pdf_rest_response, (int)request_time.getTime(TimeUnit.SECONDS), (int)verapdf_rest_request_time.getTime(TimeUnit.SECONDS) );
+        databaseInstance.printSQLContentOnConsole();
         return responseMessage;
     }
 
