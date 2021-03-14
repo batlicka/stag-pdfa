@@ -36,8 +36,7 @@ import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Path("/api")
@@ -48,8 +47,9 @@ public final class ApiResouce {
     private static String pathToRuleViolationExceptionFile;
     private static String pathToSentFilesFolder;
     private static SQLite databaseInstance;
+    private static Map stagpdfa;
 
-    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile, String pathToSentFilesFolder, SQLite databaseInstance){
+    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile, String pathToSentFilesFolder, SQLite databaseInstance, Map stagpdfa){
         this.urlToVeraPDFrest=urlToVeraPDFrest;
         this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
@@ -57,6 +57,9 @@ public final class ApiResouce {
         this.RuleViolationException=fileDes.deserializer();
         this.pathToSentFilesFolder=pathToSentFilesFolder;
         this.databaseInstance = databaseInstance;
+        this.stagpdfa=stagpdfa;
+        Object var=stagpdfa.get("exception");
+        System.out.println(var.toString());
     }
 
     @GET
@@ -182,12 +185,12 @@ public final class ApiResouce {
     public static String safePdf(@PathParam("profileId") String profileId,
                                  @FormDataParam("sha1Hex") String sha1Hex,
                                  @FormDataParam("file") InputStream uploadedInputStream) {
+        System.out.println(stagpdfa.get("exceptions"));
         //time of processing on stag-pdfa
         StopWatch request_time = StopWatch.createStarted();
         //time of processing on veraPdf-rest
         StopWatch verapdf_rest_request_time = new StopWatch();
 
-        System.out.println(String.format("accepted sha1Hex: %s", sha1Hex));
         String responseMessage="";
         String nameForPdf="";
         String vera_pdf_rest_response="";
