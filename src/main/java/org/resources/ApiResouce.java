@@ -42,12 +42,12 @@ import java.util.concurrent.TimeUnit;
 @Path("/api")
 public final class ApiResouce {
     private static final String SHA1_NAME = "SHA-1";
-    private static ArrayList<String> RuleViolationException;
+    private static ArrayList<String> RuleViolationException=new ArrayList<String>();
     private static String urlToVeraPDFrest;
     private static String pathToRuleViolationExceptionFile;
     private static String pathToSentFilesFolder;
     private static SQLite databaseInstance;
-    private static Map stagpdfa;
+    private static LinkedHashMap<String, List<String>> stagpdfa;
 
     public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile, String pathToSentFilesFolder, SQLite databaseInstance, Map stagpdfa){
         this.urlToVeraPDFrest=urlToVeraPDFrest;
@@ -57,9 +57,24 @@ public final class ApiResouce {
         this.RuleViolationException=fileDes.deserializer();
         this.pathToSentFilesFolder=pathToSentFilesFolder;
         this.databaseInstance = databaseInstance;
-        this.stagpdfa=stagpdfa;
-        Object var=stagpdfa.get("exception");
-        System.out.println(var.toString());
+        this.stagpdfa= new LinkedHashMap<String, List<String>>(stagpdfa);
+
+        /*try{
+            Integer vari =this.stagpdfa.get("exception").size();
+        }catch (NullPointerException e){
+            System.out.println(e.getStackTrace());
+        }
+
+        //Pokus nevím proč tohle nefunguje
+        //RuleViolationException = ArrayList<String>(this.stagpdfa.get("exception"));
+        for(Integer i=0;i<this.stagpdfa.get("exception").size();i++){
+            String stringItem=this.stagpdfa.get("exception").get(i);
+            RuleViolationException.add(stringItem);
+        }
+        LinkedHashMap<String, List<String>> vvv=new LinkedHashMap<String, List<String>>(stagpdfa);
+        ArrayList<String> vv=new ArrayList<String>();
+        vv.add(vvv.get("exceptions").get(0));*/
+
     }
 
     @GET
@@ -122,6 +137,9 @@ public final class ApiResouce {
     @Path("/ok")
     @Produces(MediaType.APPLICATION_JSON)//APPLICATION_JSON
     public Response getOkResponse() {
+
+
+
         //https://www.baeldung.com/jax-rs-response
         String message = "{\"hello\": \"This is a JSON response\"}";
 

@@ -34,5 +34,5 @@ stagpdfa:
     - 6.1.7
     - 6.2.2
 
-# pathToSentFilesFolder: logs/files/
-# urlToVeraPDFrest: http://pdfa.k.utb.cz:7070/api/validate/auto
+#pathToSentFilesFolder: logs/files/
+#urlToVeraPDFrest: http://pdfa.k.utb.cz:7070/api/validate/auto
