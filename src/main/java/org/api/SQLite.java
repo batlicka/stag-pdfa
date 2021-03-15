@@ -3,7 +3,7 @@ package org.api;
 import java.sql.*;
 
 public class SQLite {
-    public SQLite() {
+    public SQLite(String  databaseUrlJdbc) {
         //https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
         Connection connection=null;
         try{
@@ -14,21 +14,16 @@ public class SQLite {
                 statement= connection.createStatement();
                 statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-                statement.executeUpdate("drop table if exists stagpdfa_logs");
-
                 DatabaseMetaData dbm = connection.getMetaData();
                 ResultSet tables = dbm.getTables(null, null, "stagpdfa_logs", null);
                 if (tables.next()) {
                     System.out.println("table stagpdfa_logs, exist");
-
+                    tables.close();
                 }
                 else {
                     statement.executeUpdate("create table stagpdfa_logs (sha1 string,  verapdf_rest_response string, request_time integer, verapdf_rest_request_time integer)");
                 }
-
-
                 //statement.executeUpdate("drop table if exists stagpdfa_logs");
-
 
                 statement.executeUpdate("drop table if exists person");
                 statement.executeUpdate("create table person (id integer, name string)");

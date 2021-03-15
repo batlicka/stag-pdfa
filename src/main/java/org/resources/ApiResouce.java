@@ -48,14 +48,16 @@ public final class ApiResouce {
     private static SQLite databaseInstance;
     private static LinkedHashMap<String, List<String>> stagpdfa;
 
-    public ApiResouce(SQLite databaseInstance, Map stagpdfa){
+    public ApiResouce( Map stagpdfa){
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         //https://stackoverflow.com/questions/13581997/how-get-value-from-linkedhashmap-based-on-index-not-on-key?answertab=votes#tab-top
-        this.databaseInstance = databaseInstance;
+
+        //SQLite databaseInstance = new SQLite(configuration.getStagpdfa().get("configuration.getStagpdfa()").get(0));
         this.stagpdfa= new LinkedHashMap<String, List<String>>(stagpdfa);
         RuleViolationException = new ArrayList<String>(this.stagpdfa.get("exceptions"));
         this.pathToSentFilesFolder=this.stagpdfa.get("pathToSentFilesFolder").get(0);
         this.urlToVeraPDFrest=this.stagpdfa.get("urlToVeraPDFrest").get(0);
+        this.databaseInstance = new SQLite(this.stagpdfa.get("databaseUrlJdbc").get(0));
     }
 
     @GET

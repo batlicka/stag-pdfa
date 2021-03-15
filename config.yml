@@ -30,4 +30,6 @@ stagpdfa:
     - D:\\tmp\\
   urlToVeraPDFrest:
     - http://pdfa.k.utb.cz:7070/api/validate/auto
+  databaseUrlJdbc:
+    - jdbc:sqlite:sample.db
 
