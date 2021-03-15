@@ -27,9 +27,8 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
     public void run(final DropwizardConfiguration configuration,
                     final Environment environment) {
         SQLite databaseInstance = new SQLite();
-        final ApiResouce restApi = new ApiResouce(configuration.getUrlToVeraPDFrest(),configuration.getPathToRuleViolationExceptionFile(),configuration.getPathToSentFilesFolder(),databaseInstance, configuration.getStagpdfa() );
+        final ApiResouce restApi = new ApiResouce(databaseInstance, configuration.getStagpdfa() );
         environment.jersey().register(restApi);
-        System.out.println("from run method: " +configuration.getStagpdfa());
     }
 
 }

@@ -33,6 +33,11 @@ stagpdfa:
     - 6.3.2
     - 6.1.7
     - 6.2.2
+  pathToSentFilesFolder:
+    #skolni linux server
+    #- logs/files/
+    #na windows
+    - D:\\tmp\\
+  urlToVeraPDFrest:
+    - http://pdfa.k.utb.cz:7070/api/validate/auto
 
-#pathToSentFilesFolder: logs/files/
-#urlToVeraPDFrest: http://pdfa.k.utb.cz:7070/api/validate/auto

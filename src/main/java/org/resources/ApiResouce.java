@@ -44,14 +44,11 @@ public final class ApiResouce {
     private static final String SHA1_NAME = "SHA-1";
     private static ArrayList<String> RuleViolationException=new ArrayList<String>();
     private static String urlToVeraPDFrest;
-    private static String pathToRuleViolationExceptionFile;
     private static String pathToSentFilesFolder;
     private static SQLite databaseInstance;
     private static LinkedHashMap<String, List<String>> stagpdfa;
 
-    public ApiResouce(String urlToVeraPDFrest, String pathToRuleViolationExceptionFile, String pathToSentFilesFolder, SQLite databaseInstance, Map stagpdfa){
-        this.urlToVeraPDFrest=urlToVeraPDFrest;
-        this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
+    public ApiResouce(SQLite databaseInstance, Map stagpdfa){
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         //start--loading of RuleViolationException array from file
         //CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
@@ -60,9 +57,8 @@ public final class ApiResouce {
         this.databaseInstance = databaseInstance;
         this.stagpdfa= new LinkedHashMap<String, List<String>>(stagpdfa);
         RuleViolationException = new ArrayList<String>(this.stagpdfa.get("exceptions"));
-        this.pathToSentFilesFolder=pathToSentFilesFolder;
-        //this.pathToSentFilesFolder=this.stagpdfa.get("pathToSentFilesFolder");
-
+        this.pathToSentFilesFolder=this.stagpdfa.get("pathToSentFilesFolder").get(0);
+        this.urlToVeraPDFrest=this.stagpdfa.get("urlToVeraPDFrest").get(0);
     }
 
     @GET
