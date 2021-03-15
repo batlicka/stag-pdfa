@@ -50,10 +50,7 @@ public final class ApiResouce {
 
     public ApiResouce(SQLite databaseInstance, Map stagpdfa){
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
-        //start--loading of RuleViolationException array from file
-        //CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
-        //this.RuleViolationException=fileDes.deserializer();
-        //end--old loading of RuleViolationException array from file
+        //https://stackoverflow.com/questions/13581997/how-get-value-from-linkedhashmap-based-on-index-not-on-key?answertab=votes#tab-top
         this.databaseInstance = databaseInstance;
         this.stagpdfa= new LinkedHashMap<String, List<String>>(stagpdfa);
         RuleViolationException = new ArrayList<String>(this.stagpdfa.get("exceptions"));
@@ -187,7 +184,6 @@ public final class ApiResouce {
     public static String safePdf(@PathParam("profileId") String profileId,
                                  @FormDataParam("sha1Hex") String sha1Hex,
                                  @FormDataParam("file") InputStream uploadedInputStream) {
-        System.out.println(stagpdfa.get("exceptions"));
         //time of processing on stag-pdfa
         StopWatch request_time = StopWatch.createStarted();
         //time of processing on veraPdf-rest
@@ -196,7 +192,6 @@ public final class ApiResouce {
         String responseMessage="";
         String nameForPdf="";
         String vera_pdf_rest_response="";
-
         try {
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
             //saveing of uploadedInputStream to pdf in local folder
