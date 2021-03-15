@@ -53,27 +53,15 @@ public final class ApiResouce {
         this.urlToVeraPDFrest=urlToVeraPDFrest;
         this.pathToRuleViolationExceptionFile=pathToRuleViolationExceptionFile;
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
-        CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
-        this.RuleViolationException=fileDes.deserializer();
-        this.pathToSentFilesFolder=pathToSentFilesFolder;
+        //start--loading of RuleViolationException array from file
+        //CustomJsonFileDeserializer fileDes =new CustomJsonFileDeserializer(new File(pathToRuleViolationExceptionFile));
+        //this.RuleViolationException=fileDes.deserializer();
+        //end--old loading of RuleViolationException array from file
         this.databaseInstance = databaseInstance;
         this.stagpdfa= new LinkedHashMap<String, List<String>>(stagpdfa);
-
-        /*try{
-            Integer vari =this.stagpdfa.get("exception").size();
-        }catch (NullPointerException e){
-            System.out.println(e.getStackTrace());
-        }
-
-        //Pokus nevím proč tohle nefunguje
-        //RuleViolationException = ArrayList<String>(this.stagpdfa.get("exception"));
-        for(Integer i=0;i<this.stagpdfa.get("exception").size();i++){
-            String stringItem=this.stagpdfa.get("exception").get(i);
-            RuleViolationException.add(stringItem);
-        }
-        LinkedHashMap<String, List<String>> vvv=new LinkedHashMap<String, List<String>>(stagpdfa);
-        ArrayList<String> vv=new ArrayList<String>();
-        vv.add(vvv.get("exceptions").get(0));*/
+        RuleViolationException = new ArrayList<String>(this.stagpdfa.get("exceptions"));
+        this.pathToSentFilesFolder=pathToSentFilesFolder;
+        //this.pathToSentFilesFolder=this.stagpdfa.get("pathToSentFilesFolder");
 
     }
 
