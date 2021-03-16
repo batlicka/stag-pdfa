@@ -7,7 +7,7 @@ public class SQLite {
         //https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
         Connection connection=null;
         try{
-            connection= DriverManager.getConnection("jdbc:sqlite:sample.db");
+            connection= DriverManager.getConnection(databaseUrlJdbc);
             Statement statement =null;
             // create a database connection
             try{
