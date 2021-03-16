@@ -30,9 +30,10 @@ stagpdfa:
     #- D:\\tmp\\
     - logs/files/
   urlToVeraPDFrest:
-    - http://pdfa.k.utb.cz:7070/api/validate/auto
+    - http://HOST:PORT/api/validate/auto
   databaseUrlJdbc:
     - jdbc:sqlite:sample.db
+#    - jdbc:postgresql://HOST/DB?user=USER&password=PASS
   cleanDatabaseTableAtStart:
   # parameters: true or false
     - true
