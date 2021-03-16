@@ -3,7 +3,11 @@ package org.api;
 import java.sql.*;
 
 public class SQLite {
+    public String databaseUrlJdbc;
+
     public SQLite(String  databaseUrlJdbc, String cleanDatabaseTableAtStart) {
+        this.databaseUrlJdbc=databaseUrlJdbc;
+
         //https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
         Connection connection=null;
         try{
@@ -62,7 +66,7 @@ public class SQLite {
         //https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
         Connection connection=null;
         try{
-            connection= DriverManager.getConnection("jdbc:sqlite:sample.db");
+            connection= DriverManager.getConnection(databaseUrlJdbc);
             Statement statement =null;
             // create a database connection
             try{
@@ -115,7 +119,7 @@ public class SQLite {
         Connection connection=null;
         try{
 
-            connection= DriverManager.getConnection("jdbc:sqlite:sample.db");
+            connection= DriverManager.getConnection(databaseUrlJdbc);
             Statement statement =null;
             // create a database connection
             try{
