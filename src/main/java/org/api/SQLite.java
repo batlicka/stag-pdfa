@@ -73,7 +73,7 @@ public class SQLite {
                 statement= connection.createStatement();
                 statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-                PreparedStatement pstmt = connection.prepareStatement("INSERT INTO `stagpdfa_logs`(sha1 ,verapdf_rest_response, request_time, verapdf_rest_request_time) VALUES (?,?,?,?)");
+                PreparedStatement pstmt = connection.prepareStatement("INSERT INTO stagpdfa_logs (sha1 ,verapdf_rest_response, request_time, verapdf_rest_request_time) VALUES (?,?,?,?)");
 
                 //https://stackoverflow.com/questions/17207088/how-to-use-java-variable-to-insert-values-to-mysql-table
                 pstmt.setString(1, sha1 );
