@@ -47,6 +47,7 @@ public final class ApiResouce {
     private static String pathToSentFilesFolder;
     private static SQLite databaseInstance;
     private static LinkedHashMap<String, List<String>> stagpdfa;
+    private static String delayProcessingTheRequest;
 
     public ApiResouce( Map stagpdfa){
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
@@ -57,7 +58,8 @@ public final class ApiResouce {
         RuleViolationException = new ArrayList<String>(this.stagpdfa.get("exceptions"));
         this.pathToSentFilesFolder=this.stagpdfa.get("pathToSentFilesFolder").get(0);
         this.urlToVeraPDFrest=this.stagpdfa.get("urlToVeraPDFrest").get(0);
-        this.databaseInstance = new SQLite(this.stagpdfa.get("databaseUrlJdbc").get(0));
+        this.databaseInstance = new SQLite(this.stagpdfa.get("databaseUrlJdbc").get(0), this.stagpdfa.get("cleanDatabaseTableAtStart").get(0));
+        this.delayProcessingTheRequest = this.stagpdfa.get("delayProcessingTheRequest").get(0);
     }
 
     @GET
@@ -190,6 +192,15 @@ public final class ApiResouce {
         StopWatch request_time = StopWatch.createStarted();
         //time of processing on veraPdf-rest
         StopWatch verapdf_rest_request_time = new StopWatch();
+
+        //for purpouse of testing,
+        if(delayProcessingTheRequest.equals("true")){
+            try {
+                Thread.sleep(6000);
+            }catch (InterruptedException inter){
+                inter.getStackTrace();
+            }
+        }
 
         String responseMessage="";
         String nameForPdf="";

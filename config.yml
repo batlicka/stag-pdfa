@@ -27,9 +27,16 @@ stagpdfa:
     #skolni linux server
     #- logs/files/
     #na windows
-    - D:\\tmp\\
+    #- D:\\tmp\\
+    - logs/files/
   urlToVeraPDFrest:
     - http://pdfa.k.utb.cz:7070/api/validate/auto
   databaseUrlJdbc:
     - jdbc:sqlite:sample.db
+  cleanDatabaseTableAtStart:
+  # parameters: true or false
+    - true
+  delayProcessingTheRequest:
+  #parameters: true or false
+    - false
 
