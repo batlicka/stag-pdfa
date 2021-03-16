@@ -17,7 +17,7 @@ public class SQLite {
                 //cleanDatabaseTableAtStart==true, If you want to delete existing database table at the start of program
                 if(cleanDatabaseTableAtStart.equals("true")){
                     statement.executeUpdate("drop table if exists stagpdfa_logs");
-                    statement.executeUpdate("create table stagpdfa_logs (sha1 string,  verapdf_rest_response string, request_time integer, verapdf_rest_request_time integer)");
+                    statement.executeUpdate("create table stagpdfa_logs (sha1 text,  verapdf_rest_response text, request_time integer, verapdf_rest_request_time integer)");
                 }else {
                     DatabaseMetaData dbm = connection.getMetaData();
                     ResultSet tables = dbm.getTables(null, null, "stagpdfa_logs", null);
@@ -25,7 +25,7 @@ public class SQLite {
                         System.out.println("table stagpdfa_logs, exist");
                         tables.close();
                     } else {
-                        statement.executeUpdate("create table stagpdfa_logs (sha1 string,  verapdf_rest_response string, request_time integer, verapdf_rest_request_time integer)");
+                        statement.executeUpdate("create table stagpdfa_logs (sha1 text,  verapdf_rest_response text, request_time integer, verapdf_rest_request_time integer)");
                         tables.close();
                     }
                     //statement.executeUpdate("drop table if exists stagpdfa_logs");
