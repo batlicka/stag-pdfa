@@ -13,26 +13,21 @@ public class SQLite {
             try{
                 statement= connection.createStatement();
                 statement.setQueryTimeout(30);  // set timeout to 30 sec.
-
-                //cleanDatabaseTableAtStart==true, If you want to delete existing database table at the start of program
-                if(cleanDatabaseTableAtStart.equals("true")){
-                    statement.executeUpdate("drop table if exists stagpdfa_logs");
-                    statement.executeUpdate("create table stagpdfa_logs (sha1 text,  verapdf_rest_response text, request_time integer, verapdf_rest_request_time integer)");
-                }else {
                     DatabaseMetaData dbm = connection.getMetaData();
                     ResultSet tables = dbm.getTables(null, null, "stagpdfa_logs", null);
                     if (tables.next()) {
                         System.out.println("table stagpdfa_logs, exist");
                         tables.close();
+
+                        //cleanDatabaseTableAtStart==true, If you want to delete content of existing database table at the start of program
+                        if(cleanDatabaseTableAtStart.equals("true")){
+                            statement.executeUpdate("delete from stagpdfa_logs");
+                        }
+
                     } else {
                         statement.executeUpdate("create table stagpdfa_logs (sha1 text,  verapdf_rest_response text, request_time integer, verapdf_rest_request_time integer)");
                         tables.close();
                     }
-                    //statement.executeUpdate("drop table if exists stagpdfa_logs");
-
-                    statement.executeUpdate("drop table if exists person");
-                    statement.executeUpdate("create table person (id integer, name string)");
-                }
             }catch(SQLException e){
                 System.err.println(e.getMessage());
             }finally {
