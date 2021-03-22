@@ -127,16 +127,15 @@ public final class ApiResouce {
     @Produces(MediaType.APPLICATION_JSON)//APPLICATION_JSON
     public Response getOkResponse() {
 
-
-
         //https://www.baeldung.com/jax-rs-response
         String message = "{\"hello\": \"This is a JSON response\"}";
 
-        return Response
-                .status(Response.Status.OK)
+       return Response
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(message)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
+
 
         //https://www.baeldung.com/jax-rs-response
     }
@@ -189,7 +188,7 @@ public final class ApiResouce {
     @Path("/validate/{profileId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({MediaType.APPLICATION_JSON})
-    public static String safePdf(@PathParam("profileId") String profileId,
+    public static Response safePdf(@PathParam("profileId") String profileId,
                                  @FormDataParam("sha1Hex") String sha1Hex,
                                  @FormDataParam("file") InputStream uploadedInputStream) {
         //time of processing on stag-pdfa
@@ -320,8 +319,6 @@ public final class ApiResouce {
                 System.out.println("List of Clauses: " + responseCurrent.getRuleValidationExceptions());
                 System.out.println("responseMessage: ");
                 System.out.println(responseMessage);
-
-                //throw new ClientProtocolException();
             }else{
                 //from veraPdf-rest was returned response in different Content-type than "application/json"
                 responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
@@ -329,17 +326,22 @@ public final class ApiResouce {
 
 
         } catch (UnrecognizedPropertyException e1) {
-            System.out.println(ExceptionUtils.getStackTrace(e1));
+            errorMessage=ExceptionUtils.getStackTrace(e1);
+            System.out.println(errorMessage);
         } catch (JsonMappingException e2) {
-            System.out.println(ExceptionUtils.getStackTrace(e2));
+            errorMessage=ExceptionUtils.getStackTrace(e2);
+            System.out.println(errorMessage);
         } catch (JsonParseException e3) {
             System.out.println("response can't be processed, because response is not in JSON format");
         } catch (JsonProcessingException e4) {
-            System.out.println(ExceptionUtils.getStackTrace(e4));
+            errorMessage = ExceptionUtils.getStackTrace(e4);
+            System.out.println(errorMessage);
         } catch (ClientProtocolException e5) {
-            System.out.println(ExceptionUtils.getStackTrace(e5));
+            errorMessage=ExceptionUtils.getStackTrace(e5);
+            System.out.println(errorMessage);
         } catch (IOException e6) {
-            System.out.println(ExceptionUtils.getStackTrace(e6));
+            errorMessage=ExceptionUtils.getStackTrace(e6);
+            System.out.println(errorMessage);
         }
         request_time.stop();
 
@@ -356,7 +358,20 @@ public final class ApiResouce {
         else{
             //return responseMessage in normal form
         }
-        return responseMessage;
+
+        if(errorMessage.isEmpty()){
+            return Response
+                    .status(Response.Status.OK)
+                    .entity(responseMessage)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }else{
+            return Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"Error 500 Internal Server Error\"}")
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
     }
 
     public static String calculateSha1Hex(byte[] bytesArrayuploadedInputStream){
