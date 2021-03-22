@@ -40,4 +40,7 @@ stagpdfa:
   delayProcessingTheRequest:
   #parameters: true or false
     - false
+  testSwitch:
+      #parameters: deff, fa, fb, f3a
+    - f3a
 

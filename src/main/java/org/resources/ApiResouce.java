@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -49,6 +50,8 @@ public final class ApiResouce {
     private static LinkedHashMap<String, List<String>> stagpdfa;
     private static String delayProcessingTheRequest;
 
+    private static String testSwitch;
+
     public ApiResouce( Map stagpdfa){
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         //https://stackoverflow.com/questions/13581997/how-get-value-from-linkedhashmap-based-on-index-not-on-key?answertab=votes#tab-top
@@ -60,6 +63,7 @@ public final class ApiResouce {
         this.urlToVeraPDFrest=this.stagpdfa.get("urlToVeraPDFrest").get(0);
         this.databaseInstance = new SQLite(this.stagpdfa.get("databaseUrlJdbc").get(0), this.stagpdfa.get("cleanDatabaseTableAtStart").get(0));
         this.delayProcessingTheRequest = this.stagpdfa.get("delayProcessingTheRequest").get(0);
+        this.testSwitch = this.stagpdfa.get("testSwitch").get(0);
     }
 
     @GET
@@ -205,6 +209,7 @@ public final class ApiResouce {
         String responseMessage="";
         String nameForPdf="";
         String vera_pdf_rest_response="";
+        String errorMessage="";
         try {
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
             //saveing of uploadedInputStream to pdf in local folder
@@ -229,7 +234,16 @@ public final class ApiResouce {
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
             //http://localhost:9090/api/validate/auto
             //http://pdfa.k.utb.cz:8080/api/validate/auto
-            httpPost.setHeader("Accept", "application/json");
+
+            //only for testing pursouses
+            if(testSwitch.equals("f3a")){
+                //header is not set veraPDF-rest return HTML
+            }
+            else{
+                httpPost.setHeader("Accept", "application/json");
+            }
+            //usualy " httpPost.setHeader("Accept", "application/json");" without if
+
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("file", firstCloneUploadedInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
@@ -274,7 +288,7 @@ public final class ApiResouce {
                         des.getAttributeValueFromRoot("pdfaflavour"),
                         des.getTestAssertionsArray()
                 );
-                //logování veraPDF-rest comliant to SQLite database with logs
+                //logování veraPDF-rest compliant to SQLite database with logs
                 vera_pdf_rest_response = responseCurrent.getCompliant();
 
                 //rest api rozhodne, jak se výjimka ošetří
@@ -306,6 +320,8 @@ public final class ApiResouce {
                 System.out.println("List of Clauses: " + responseCurrent.getRuleValidationExceptions());
                 System.out.println("responseMessage: ");
                 System.out.println(responseMessage);
+
+                //throw new ClientProtocolException();
             }else{
                 //from veraPdf-rest was returned response in different Content-type than "application/json"
                 responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
@@ -313,26 +329,34 @@ public final class ApiResouce {
 
 
         } catch (UnrecognizedPropertyException e1) {
-            System.out.println(e1.getMessage());
+            System.out.println(ExceptionUtils.getStackTrace(e1));
         } catch (JsonMappingException e2) {
-            System.out.println(e2.getMessage());
+            System.out.println(ExceptionUtils.getStackTrace(e2));
         } catch (JsonParseException e3) {
             System.out.println("response can't be processed, because response is not in JSON format");
         } catch (JsonProcessingException e4) {
-            System.out.println(e4.getMessage());
+            System.out.println(ExceptionUtils.getStackTrace(e4));
         } catch (ClientProtocolException e5) {
-            System.out.println(e5.getMessage());
+            System.out.println(ExceptionUtils.getStackTrace(e5));
         } catch (IOException e6) {
-            System.out.println(e6.getMessage());
+            System.out.println(ExceptionUtils.getStackTrace(e6));
         }
         request_time.stop();
 
         //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
         databaseInstance.insertStagpdfaLogs(nameForPdf,vera_pdf_rest_response, (int)request_time.getTime(TimeUnit.MILLISECONDS), (int)verapdf_rest_request_time.getTime(TimeUnit.MILLISECONDS) );
         databaseInstance.printSQLContentOnConsole();
-        //return responseMessage;
+
         //only for testing purpouses
-        return "{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+        if(testSwitch.equals("fa")){
+            responseMessage="{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+        }else if(testSwitch.equals("fb")){
+            responseMessage="{\"Response from veraPDF wasn't in Content-type: application/json \"}";
+        }
+        else{
+            //return responseMessage in normal form
+        }
+        return responseMessage;
     }
 
     public static String calculateSha1Hex(byte[] bytesArrayuploadedInputStream){
