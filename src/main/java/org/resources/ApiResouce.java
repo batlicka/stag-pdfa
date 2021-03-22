@@ -328,7 +328,7 @@ public final class ApiResouce {
         request_time.stop();
 
         //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
-        databaseInstance.insertStagpdfaLogs(nameForPdf,vera_pdf_rest_response, (int)request_time.getTime(TimeUnit.SECONDS), (int)verapdf_rest_request_time.getTime(TimeUnit.SECONDS) );
+        databaseInstance.insertStagpdfaLogs(nameForPdf,vera_pdf_rest_response, (int)request_time.getTime(TimeUnit.MILLISECONDS), (int)verapdf_rest_request_time.getTime(TimeUnit.MILLISECONDS) );
         databaseInstance.printSQLContentOnConsole();
         return responseMessage;
     }
