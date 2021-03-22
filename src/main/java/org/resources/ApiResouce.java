@@ -330,7 +330,9 @@ public final class ApiResouce {
         //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
         databaseInstance.insertStagpdfaLogs(nameForPdf,vera_pdf_rest_response, (int)request_time.getTime(TimeUnit.MILLISECONDS), (int)verapdf_rest_request_time.getTime(TimeUnit.MILLISECONDS) );
         databaseInstance.printSQLContentOnConsole();
-        return responseMessage;
+        //return responseMessage;
+        //only for testing purpouses
+        return "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
     }
 
     public static String calculateSha1Hex(byte[] bytesArrayuploadedInputStream){
