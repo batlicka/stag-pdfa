@@ -332,7 +332,7 @@ public final class ApiResouce {
         databaseInstance.printSQLContentOnConsole();
         //return responseMessage;
         //only for testing purpouses
-        return "{\"response\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+        return "{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
     }
 
     public static String calculateSha1Hex(byte[] bytesArrayuploadedInputStream){
