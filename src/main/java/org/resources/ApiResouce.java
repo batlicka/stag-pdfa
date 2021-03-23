@@ -237,6 +237,7 @@ public final class ApiResouce {
             //only for testing pursouses
             if (testSwitch.equals("f6")) {
                 //header is not set veraPDF-rest return HTML
+                httpPost.setHeader("Accept", "text/html");
             } else {
                 httpPost.setHeader("Accept", "application/json");
             }
