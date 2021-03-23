@@ -260,7 +260,7 @@ public final class ApiResouce {
             System.out.println(response.getStatusLine().getReasonPhrase());
 
             String responseString = new BasicResponseHandler().handleResponse(response);
-            System.out.println(responseString);
+            //System.out.println(responseString);
 
             //https://stackoverflow.com/questions/9077933/how-to-find-http-media-type-mime-type-from-response
             HttpEntity entity = response.getEntity();
@@ -352,9 +352,12 @@ public final class ApiResouce {
         } else if (testSwitch.equals("f32")) {
             responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
         } else if (testSwitch.equals("f31")) {
+            responseMessage = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" /></head><body><h2>This is test response in html</h2></body></html>";
+            System.out.println(responseMessage);
             return Response
-                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .status(Response.Status.OK)
                     .type(MediaType.TEXT_HTML)
+                    .entity(responseMessage)
                     .build();
         } else if (testSwitch.equals("f4")) {
             responseMessage = "{\"klic\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
@@ -362,13 +365,16 @@ public final class ApiResouce {
             //return responseMessage in normal form
         }
 
-        if(errorMessage.isEmpty()){
+        //only for testing purpouses
+        System.out.println(responseMessage);
+
+        if (errorMessage.isEmpty()) {
             return Response
                     .status(Response.Status.OK)
                     .entity(responseMessage)
                     .type(MediaType.APPLICATION_JSON)
                     .build();
-        }else{
+        } else {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"Error 500 Internal Server Error\"}")
