@@ -321,7 +321,7 @@ public final class ApiResouce {
                 System.out.println(responseMessage);
             }else{
                 //from veraPdf-rest was returned response in different Content-type than "application/json"
-                responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
+                errorMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
             }
         } catch (UnrecognizedPropertyException e1) {
             errorMessage=ExceptionUtils.getStackTrace(e1);
@@ -380,7 +380,7 @@ public final class ApiResouce {
         } else {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"Error 500 Internal Server Error\"}")
+                    .entity("{\"Error 500 Internal Server Error\"} ")
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
