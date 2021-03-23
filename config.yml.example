@@ -41,6 +41,6 @@ stagpdfa:
   #parameters: true or false
     - false
   testSwitch:
-      #parameters: deff, fa, fb, f3a
-    - f3a
+    #parameters: deff, f31, f32, f4, f5, f6
+    - f5
 

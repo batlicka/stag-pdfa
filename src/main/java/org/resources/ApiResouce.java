@@ -235,10 +235,9 @@ public final class ApiResouce {
             //http://pdfa.k.utb.cz:8080/api/validate/auto
 
             //only for testing pursouses
-            if(testSwitch.equals("f3a")){
+            if (testSwitch.equals("f6")) {
                 //header is not set veraPDF-rest return HTML
-            }
-            else{
+            } else {
                 httpPost.setHeader("Accept", "application/json");
             }
             //usualy " httpPost.setHeader("Accept", "application/json");" without if
@@ -261,7 +260,7 @@ public final class ApiResouce {
             System.out.println(response.getStatusLine().getReasonPhrase());
 
             String responseString = new BasicResponseHandler().handleResponse(response);
-            //System.out.println(responseString);
+            System.out.println(responseString);
 
             //https://stackoverflow.com/questions/9077933/how-to-find-http-media-type-mime-type-from-response
             HttpEntity entity = response.getEntity();
@@ -323,8 +322,6 @@ public final class ApiResouce {
                 //from veraPdf-rest was returned response in different Content-type than "application/json"
                 responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
             }
-
-
         } catch (UnrecognizedPropertyException e1) {
             errorMessage=ExceptionUtils.getStackTrace(e1);
             System.out.println(errorMessage);
@@ -350,12 +347,18 @@ public final class ApiResouce {
         databaseInstance.printSQLContentOnConsole();
 
         //only for testing purpouses
-        if(testSwitch.equals("fa")){
-            responseMessage="{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
-        }else if(testSwitch.equals("fb")){
-            responseMessage="{\"Response from veraPDF wasn't in Content-type: application/json \"}";
-        }
-        else{
+        if (testSwitch.equals("f5")) {
+            responseMessage = "{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+        } else if (testSwitch.equals("f32")) {
+            responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
+        } else if (testSwitch.equals("f31")) {
+            return Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .type(MediaType.TEXT_HTML)
+                    .build();
+        } else if (testSwitch.equals("f4")) {
+            responseMessage = "{\"klic\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+        } else {
             //return responseMessage in normal form
         }
 
