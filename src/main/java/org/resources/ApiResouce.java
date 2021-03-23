@@ -322,6 +322,8 @@ public final class ApiResouce {
             }else{
                 //from veraPdf-rest was returned response in different Content-type than "application/json"
                 errorMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
+                //only for testing purpouses
+                System.out.println(errorMessage);
             }
         } catch (UnrecognizedPropertyException e1) {
             errorMessage=ExceptionUtils.getStackTrace(e1);
