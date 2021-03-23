@@ -352,6 +352,7 @@ public final class ApiResouce {
         } else if (testSwitch.equals("f32")) {
             responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
         } else if (testSwitch.equals("f31")) {
+            System.out.println("response Message returned to IS stag: ");
             responseMessage = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" /></head><body><h2>This is test response in html</h2></body></html>";
             System.out.println(responseMessage);
             return Response
@@ -366,6 +367,7 @@ public final class ApiResouce {
         }
 
         //only for testing purpouses
+        System.out.println("response Message returned to IS stag: ");
         System.out.println(responseMessage);
 
         if (errorMessage.isEmpty()) {
