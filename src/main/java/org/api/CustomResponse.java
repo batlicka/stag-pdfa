@@ -1,11 +1,17 @@
 package org.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomResponse {
+//using of Lombok reduce number of rows, It generate getters and setters for all the attributes of this class
+@Getter
+@Setter
+public class CustomResponse implements Serializable {
     private String compliant;
     //explanation of @JsonIgnore
     //https://www.baeldung.com/jackson-annotations
@@ -21,30 +27,6 @@ public class CustomResponse {
         this.compliant = compliant;
         this.pdfaflavour = pdfaflavour;
         this.ruleValidationExceptions = ruleValidationExceptions;
-    }
-
-    public void setRuleValidationExceptions(ArrayList<String> ruleValidationExceptions) {
-        this.ruleValidationExceptions = ruleValidationExceptions;
-    }
-
-    public String getCompliant() {
-        return compliant;
-    }
-
-    public void setCompliant(String compliant) {
-        this.compliant = compliant;
-    }
-
-    public String getPdfaflavour() {
-        return pdfaflavour;
-    }
-
-    public void setPdfaflavour(String pdfaflavour) {
-        this.pdfaflavour = pdfaflavour;
-    }
-
-    public ArrayList<String> getRuleValidationExceptions() {
-        return ruleValidationExceptions;
     }
 
     public void differenceRuleValidationExceptons(ArrayList<String> setOfExceptionsFromFile) {
