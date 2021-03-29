@@ -200,15 +200,18 @@ public final class ApiResouce {
         if(delayProcessingTheRequest.equals("true")){
             try {
                 Thread.sleep(6000);
-            }catch (InterruptedException inter){
+            } catch (InterruptedException inter) {
                 inter.getStackTrace();
             }
         }
 
-        String responseMessage="";
-        String nameForPdf="";
-        String vera_pdf_rest_response="";
-        String errorMessage="";
+        String responseMessage = "";
+        String nameForPdf = "";
+        String vera_pdf_rest_response = "";
+        String errorMessage = "";
+        //default value of status code is 0, during running of program it is set on proper value
+        Integer statusCode = 0;
+
         try {
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
             //saveing of uploadedInputStream to pdf in local folder
@@ -255,6 +258,8 @@ public final class ApiResouce {
             CloseableHttpResponse response = client.execute(httpPost);
             //after obtaining response from veraPDF-rest stop stopwatch2
             verapdf_rest_request_time.stop();
+
+            statusCode = response.getStatusLine().getStatusCode();
 
             System.out.println(response.getStatusLine().getStatusCode());
             System.out.println(response.getStatusLine().getProtocolVersion());
@@ -326,27 +331,33 @@ public final class ApiResouce {
                 System.out.println(errorMessage);
             }
         } catch (UnrecognizedPropertyException e1) {
-            errorMessage=ExceptionUtils.getStackTrace(e1);
+            errorMessage = ExceptionUtils.getStackTrace(e1);
+            statusCode = 500;
             System.out.println(errorMessage);
         } catch (JsonMappingException e2) {
-            errorMessage=ExceptionUtils.getStackTrace(e2);
+            errorMessage = ExceptionUtils.getStackTrace(e2);
+            statusCode = 500;
             System.out.println(errorMessage);
         } catch (JsonParseException e3) {
             System.out.println("response can't be processed, because response is not in JSON format");
+            statusCode = 500;
         } catch (JsonProcessingException e4) {
             errorMessage = ExceptionUtils.getStackTrace(e4);
+            statusCode = 500;
             System.out.println(errorMessage);
         } catch (ClientProtocolException e5) {
-            errorMessage=ExceptionUtils.getStackTrace(e5);
+            errorMessage = ExceptionUtils.getStackTrace(e5);
+            statusCode = 500;
             System.out.println(errorMessage);
         } catch (IOException e6) {
-            errorMessage=ExceptionUtils.getStackTrace(e6);
+            errorMessage = ExceptionUtils.getStackTrace(e6);
+            statusCode = 500;
             System.out.println(errorMessage);
         }
         request_time.stop();
 
         //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
-        databaseInstance.insertStagpdfaLogs(nameForPdf,vera_pdf_rest_response, (int)request_time.getTime(TimeUnit.MILLISECONDS), (int)verapdf_rest_request_time.getTime(TimeUnit.MILLISECONDS) );
+        databaseInstance.insertStagpdfaLogs(nameForPdf, vera_pdf_rest_response, (int) request_time.getTime(TimeUnit.MILLISECONDS), (int) verapdf_rest_request_time.getTime(TimeUnit.MILLISECONDS), statusCode, errorMessage);
         databaseInstance.printSQLContentOnConsole();
 
         //only for testing purpouses
