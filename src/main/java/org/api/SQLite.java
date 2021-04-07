@@ -38,6 +38,7 @@ public class SQLite {
                 DatabaseMetaData dbm = connection.getMetaData();
                 ResultSet tables = dbm.getTables(null, null, "stagpdfa_logs", null);
                 if (tables.next()) {
+                    //tables.getMetaData().getColumnCount();
                     System.out.println("table stagpdfa_logs, exist");
                     tables.close();
                     //cleanDatabaseTableAtStart==true, If you want to delete content of existing database table at the start of program
@@ -46,7 +47,7 @@ public class SQLite {
                     }
 
                     //find out how many columns is in currently saved table stagpdfa_logs and how many columns is in enum Columns, if numbers are not same drop old table "stagpdfa_logs and create new"
-                    Integer colNumber = statement.executeQuery("select * from stagpdfa_logs").getMetaData().getColumnCount();
+                    Integer colNumber = statement.executeQuery("select * from stagpdfa_logs limit 1").getMetaData().getColumnCount();
                     if (!colNumber.equals(columns.values().length)) {
                         statement.executeUpdate("drop table stagpdfa_logs");
                         statement.executeUpdate(sqlCreateQuery);
