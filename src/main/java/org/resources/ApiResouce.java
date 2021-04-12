@@ -214,9 +214,11 @@ public final class ApiResouce {
 
         try {
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
+
             //saveing of uploadedInputStream to pdf in local folder
             //create byte array from accepted uploadedInputStream
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            //for testing purpouses commented \/
+            /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(uploadedInputStream, baos);
             byte[] bytesArrayuploadedInputStream = baos.toByteArray();
 
@@ -229,8 +231,8 @@ public final class ApiResouce {
             //clone of input stream for building POST
             InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
             out.write(bytesArrayuploadedInputStream);
-            out.close();
-
+            out.close();*/
+            //for testing purpouses commented /\
 
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
@@ -247,7 +249,7 @@ public final class ApiResouce {
             //usualy " httpPost.setHeader("Accept", "application/json");" without if
 
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("file", firstCloneUploadedInputStream);
+            builder.addBinaryBody("file", uploadedInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
             HttpEntity multipart = builder.build();
             //podívat se zda metoda build streamuje přímo, nebo blokuje
