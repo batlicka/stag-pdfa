@@ -212,26 +212,29 @@ public final class ApiResouce {
         //default value of status code is 0, during running of program it is set on proper value
         Integer statusCode = 0;
 
+
         try {
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
 
             //saveing of uploadedInputStream to pdf in local folder
             //create byte array from accepted uploadedInputStream
             //for testing purpouses commented \/
-            /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(uploadedInputStream, baos);
             byte[] bytesArrayuploadedInputStream = baos.toByteArray();
 
             //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
-            nameForPdf =calculateSha1Hex(bytesArrayuploadedInputStream);
-            String fullPathIncludedPdfName=pathToSentFilesFolder+nameForPdf+".pdf";
+            nameForPdf = calculateSha1Hex(bytesArrayuploadedInputStream);
+            String fullPathIncludedPdfName = pathToSentFilesFolder + nameForPdf + ".pdf";
             File output = new File(fullPathIncludedPdfName);
-            FileOutputStream out =new FileOutputStream(output);
+            FileOutputStream out = new FileOutputStream(output);
+
+            databaseInstance.insertStagpdfaLogs(nameForPdf);
 
             //clone of input stream for building POST
             InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
             out.write(bytesArrayuploadedInputStream);
-            out.close();*/
+            out.close();
             //for testing purpouses commented /\
 
             CloseableHttpClient client = HttpClients.createDefault();
@@ -248,8 +251,9 @@ public final class ApiResouce {
             }
             //usualy " httpPost.setHeader("Accept", "application/json");" without if
 
+
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("file", uploadedInputStream);
+            builder.addBinaryBody("file", firstCloneUploadedInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
             HttpEntity multipart = builder.build();
             //podívat se zda metoda build streamuje přímo, nebo blokuje
@@ -359,8 +363,7 @@ public final class ApiResouce {
         request_time.stop();
 
         //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
-        databaseInstance.insertStagpdfaLogs(nameForPdf, vera_pdf_rest_response, (int) request_time.getTime(TimeUnit.MILLISECONDS), (int) verapdf_rest_request_time.getTime(TimeUnit.MILLISECONDS), statusCode, errorMessage);
-        databaseInstance.printSQLContentOnConsole();
+        databaseInstance.updateStagpdfaLogs(vera_pdf_rest_response, (int) request_time.getTime(TimeUnit.MILLISECONDS), (int) verapdf_rest_request_time.getTime(TimeUnit.MILLISECONDS), statusCode, errorMessage, nameForPdf);
 
         //only for testing purpouses
         if (testSwitch.equals("f5")) {

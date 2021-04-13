@@ -130,11 +130,10 @@ public class SQLite {
         }
     }
 
-    public void printSQLContentOnConsole() {
-        ///https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
+    public void insertStagpdfaLogs(String sha1) {
+        //https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
         Connection connection = null;
         try {
-
             connection = DriverManager.getConnection(databaseUrlJdbc);
             Statement statement = null;
             // create a database connection
@@ -142,22 +141,63 @@ public class SQLite {
                 statement = connection.createStatement();
                 statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-                ResultSet rs = statement.executeQuery("select * from stagpdfa_logs");
-                System.out.println("sha1|verapdf_rest_response|request_time|verapdf_rest_request_time|status_code|error_message|request_timestamp");
-                while (rs.next()) {
-                    // read the result set
-                    System.out.print(rs.getString("sha1") + "| ");
-                    System.out.print(rs.getString("verapdf_rest_response") + "| ");
-                    System.out.print(rs.getInt("request_time") + "| ");
-                    System.out.print(rs.getInt("verapdf_rest_request_time") + "| ");
-                    System.out.print(rs.getInt("status_code") + "| ");
-                    if (!rs.getString("error_message").isEmpty()) {
-                        System.out.print(rs.getString("error_message").substring(0, 40) + "| ");
-                    }
-                    //TO DO printing request_timestamp
-                    System.out.println("");//end of line
-                }
+                String sqlInsertQuery = String.format("INSERT INTO stagpdfa_logs (%s) VALUES (?)", columns.sha1);
+                PreparedStatement pstmt = connection.prepareStatement(sqlInsertQuery);
 
+                pstmt.setString(1, sha1);
+                pstmt.executeUpdate();
+
+                pstmt.close();
+            } catch (SQLException e) {
+                System.err.println(ExceptionUtils.getStackTrace(e));
+            } finally {
+                try {
+                    if (statement != null)
+                        statement.close();
+
+                } catch (SQLException e) {
+                    // connection close failed.
+                    System.err.println(ExceptionUtils.getStackTrace(e));
+                }
+            }
+        } catch (SQLException sql) {
+            System.err.println(ExceptionUtils.getStackTrace(sql));
+        } finally {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e) {
+                // connection close failed.
+                System.err.println(ExceptionUtils.getStackTrace(e));
+            }
+        }
+    }
+
+    public void updateStagpdfaLogs(String verapdf_rest_response, Integer request_time, Integer verapdf_rest_request_time, Integer status_code, String error_message, String sha1) {
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(databaseUrlJdbc);
+            Statement statement = null;
+            // create a database connection
+            try {
+                statement = connection.createStatement();
+                statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+                String sqlInsertQuery = String.format("UPDATE stagpdfa_logs SET %s=(?), %s=(?), %s=(?), %s=(?), %s=(?) WHERE %s=(?)", columns.verapdf_rest_response, columns.request_time, columns.verapdf_rest_request_time, columns.status_code, columns.error_message, columns.sha1);
+                PreparedStatement pstmt = connection.prepareStatement(sqlInsertQuery);
+
+                //https://stackoverflow.com/questions/17207088/how-to-use-java-variable-to-insert-values-to-mysql-table
+
+                pstmt.setString(1, verapdf_rest_response);
+                pstmt.setInt(2, request_time);
+                pstmt.setInt(3, verapdf_rest_request_time);
+                pstmt.setInt(4, status_code);
+                pstmt.setString(5, error_message);
+                pstmt.setString(6, sha1);
+
+                pstmt.executeUpdate();
+
+                pstmt.close();
             } catch (SQLException e) {
                 System.err.println(ExceptionUtils.getStackTrace(e));
             } finally {
