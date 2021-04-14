@@ -142,31 +142,29 @@ public final class ApiResource {
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
             //saveing of uploadedInputStream to pdf in local folder
             //create byte array from accepted uploadedInputStream
-
-            /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(uploadedInputStream, baos);
-            byte[] bytesArrayuploadedInputStream = baos.toByteArray();*/
+            byte[] bytesArrayuploadedInputStream = baos.toByteArray();
             /*//alternative ways of copying to byte array
             InputStream is;
             byte[] array = is.readAllBytes();
             byte[] bytes = IOUtils.toByteArray(is);*/
 
             //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
-            /*nameForPdf = calculateSha1Hex(bytesArrayuploadedInputStream);
+            nameForPdf = calculateSha1Hex(bytesArrayuploadedInputStream);
             String fullPathIncludedPdfName = pathToSentFilesFolder + nameForPdf + ".pdf";
             File output = new File(fullPathIncludedPdfName);
-            FileOutputStream out = new FileOutputStream(output);*/
+            FileOutputStream out = new FileOutputStream(output);
 
             //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
-            nameForPdf = "performanceTest2";
             databaseInstance.insertStagpdfaLogs(nameForPdf);
 
 
             //clone of input stream for building POST
-            /*InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
+            InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
             InputStream secondCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
             out.write(bytesArrayuploadedInputStream);
-            out.close();*/
+            out.close();
 
             /*try {
                 //https://www.programcreek.com/java-api-examples/?class=java.security.DigestInputStream&method=read
@@ -196,7 +194,7 @@ public final class ApiResource {
 
 
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("file", uploadedInputStream);
+            builder.addBinaryBody("file", firstCloneUploadedInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
             HttpEntity multipart = builder.build();
             //podívat se zda metoda build streamuje přímo, nebo blokuje
