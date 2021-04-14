@@ -158,8 +158,9 @@ public final class ApiResource {
             FileOutputStream out = new FileOutputStream(output);*/
 
             //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
-            /*databaseInstance.insertStagpdfaLogs(nameForPdf);*/
-            databaseInstance.insertStagpdfaLogs("performanceTest");
+            nameForPdf = "performanceTest2";
+            databaseInstance.insertStagpdfaLogs(nameForPdf);
+
 
             //clone of input stream for building POST
             /*InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
