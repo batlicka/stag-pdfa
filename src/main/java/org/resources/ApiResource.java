@@ -155,13 +155,14 @@ public final class ApiResource {
             /*nameForPdf = calculateSha1Hex(bytesArrayuploadedInputStream);
             String fullPathIncludedPdfName = pathToSentFilesFolder + nameForPdf + ".pdf";
             File output = new File(fullPathIncludedPdfName);
-            FileOutputStream out = new FileOutputStream(output);
+            FileOutputStream out = new FileOutputStream(output);*/
 
             //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
-            databaseInstance.insertStagpdfaLogs(nameForPdf);
+            /*databaseInstance.insertStagpdfaLogs(nameForPdf);*/
+            databaseInstance.insertStagpdfaLogs("performanceTest");
 
             //clone of input stream for building POST
-            InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
+            /*InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
             InputStream secondCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
             out.write(bytesArrayuploadedInputStream);
             out.close();*/
