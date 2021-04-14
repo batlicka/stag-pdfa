@@ -4,8 +4,7 @@ import io.dropwizard.Application;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.api.SQLite;
-import org.resources.ApiResouce;
+import org.resources.ApiResource;
 
 public class DropwizardApplication extends Application<DropwizardConfiguration> {
 
@@ -26,7 +25,7 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
     @Override
     public void run(final DropwizardConfiguration configuration,
                     final Environment environment) {
-        final ApiResouce restApi = new ApiResouce(configuration.getStagpdfa() );
+        final ApiResource restApi = new ApiResource(configuration.getStagpdfa());
         environment.jersey().register(restApi);
     }
 

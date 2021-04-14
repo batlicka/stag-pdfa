@@ -35,32 +35,32 @@ import javax.ws.rs.core.Response;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Path("/api")
-public final class ApiResouce {
+public final class ApiResource {
     private static final String SHA1_NAME = "SHA-1";
-    private static ArrayList<String> RuleViolationException=new ArrayList<String>();
+    private static ArrayList<String> RuleViolationException = new ArrayList<String>();
     private static String urlToVeraPDFrest;
     private static String pathToSentFilesFolder;
     private static SQLite databaseInstance;
     private static LinkedHashMap<String, List<String>> stagpdfa;
     private static String delayProcessingTheRequest;
-
     private static String testSwitch;
 
-    public ApiResouce( Map stagpdfa){
+    public ApiResource(Map stagpdfa) {
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         //https://stackoverflow.com/questions/13581997/how-get-value-from-linkedhashmap-based-on-index-not-on-key?answertab=votes#tab-top
 
         //SQLite databaseInstance = new SQLite(configuration.getStagpdfa().get("configuration.getStagpdfa()").get(0));
-        this.stagpdfa= new LinkedHashMap<String, List<String>>(stagpdfa);
+        this.stagpdfa = new LinkedHashMap<String, List<String>>(stagpdfa);
         RuleViolationException = new ArrayList<String>(this.stagpdfa.get("exceptions"));
-        this.pathToSentFilesFolder=this.stagpdfa.get("pathToSentFilesFolder").get(0);
-        this.urlToVeraPDFrest=this.stagpdfa.get("urlToVeraPDFrest").get(0);
+        this.pathToSentFilesFolder = this.stagpdfa.get("pathToSentFilesFolder").get(0);
+        this.urlToVeraPDFrest = this.stagpdfa.get("urlToVeraPDFrest").get(0);
         this.databaseInstance = new SQLite(this.stagpdfa.get("databaseUrlJdbc").get(0), this.stagpdfa.get("cleanDatabaseTableAtStart").get(0));
         this.delayProcessingTheRequest = this.stagpdfa.get("delayProcessingTheRequest").get(0);
         this.testSwitch = this.stagpdfa.get("testSwitch").get(0);
@@ -70,27 +70,21 @@ public final class ApiResouce {
     @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
     public String getConstant(@QueryParam("var") Optional<String> var) {
-
         String initialString = "Hello World!";
-
         File out = new File("out.pdf");
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
         try {
             out.createNewFile();
             OutputStream fos = new FileOutputStream(out);
-
             InputStream uploadedInputStreamV = IOUtils.toInputStream(initialString, "UTF-8");
-
             IOUtils.copy(uploadedInputStreamV, fos);
             fos.close();
             uploadedInputStreamV.close();
             // If there wasn't a file there beforehand, there is one now.
         } catch (IOException e) {
-
             // If there was, no harm, no foul
         }
         return "ahoj: " + var.toString();
-
     }
 
     @GET
@@ -98,28 +92,6 @@ public final class ApiResouce {
     @Produces(MediaType.TEXT_PLAIN)
     public String getConstant(@PathParam("PathParam") String PathParam) {
         return "This is your PathParameter: " + PathParam;
-    }
-
-    @GET
-    @Path("/desJSON")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String desJson(@QueryParam("var") Optional<String> var) throws IOException, JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        File file = new File("RuleViolationException.json");
-        JsonNode rootNode = objectMapper.readTree(file);
-
-        ArrayList<String> arr = new ArrayList<String>();
-
-        ArrayNode arrayNode = (ArrayNode) rootNode.at("/RuleViolationExceptions");
-        JsonNode arrayElement;
-        for (int i = 0; i < arrayNode.size(); i++) {
-            arrayElement = arrayNode.get(i).at("/ruleId");
-            arr.add(arrayElement.get("clause").asText());
-        }
-
-        //List<String> valException = objectMapper.readValue(file, new TypeReference<List<String>>(){ });
-        return "desJSON";
     }
 
     @GET
@@ -135,53 +107,6 @@ public final class ApiResouce {
                 .entity(message)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
-
-
-        //https://www.baeldung.com/jax-rs-response
-    }
-
-    @POST
-    @Path("/calsha")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public static String calculateSHA(@FormDataParam("file") InputStream uploadedInputStream) throws NoSuchAlgorithmException, IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        IOUtils.copy(uploadedInputStream, baos);
-        byte[] bytesArrayuploadedInputStream = baos.toByteArray();
-        //clone
-        InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
-        InputStream secondCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
-
-        String sha1Hex = org.apache.commons.codec.digest.DigestUtils.sha1Hex(firstCloneUploadedInputStream);
-        System.out.println("sha1 calculated from uploadedInputStream, method1: " + sha1Hex);
-
-        String value = "this is a test";
-
-        String sha1 = "";
-
-        // With the java libraries
-        //https://www.baeldung.com/convert-input-stream-to-array-of-bytes
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            digest.reset();
-            //digest.update(value.getBytes("utf8"));
-            digest.update(bytesArrayuploadedInputStream);
-            sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
-            System.out.println("sha1 calculated from uploadedInputStream, method2: " + sha1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("The sha1 of \"" + value + "\" is:");
-        System.out.println(sha1);
-        System.out.println();
-
-        MessageDigest sha11 = MessageDigest.getInstance(SHA1_NAME);
-        //DigestInputStream dis = new DigestInputStream(uploadedInputStream, sha1);
-        if (sha1Hex.equalsIgnoreCase(Hex.encodeHexString(sha11.digest()))) {
-            System.out.println("sha1 are same");
-        }
-        return "this is calculated sha1";
     }
 
     @POST
@@ -215,13 +140,15 @@ public final class ApiResouce {
 
         try {
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
-
             //saveing of uploadedInputStream to pdf in local folder
             //create byte array from accepted uploadedInputStream
-            //for testing purpouses commented \/
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(uploadedInputStream, baos);
             byte[] bytesArrayuploadedInputStream = baos.toByteArray();
+            /*//alternative ways of copying to byte array
+            InputStream is;
+            byte[] array = is.readAllBytes();
+            byte[] bytes = IOUtils.toByteArray(is);*/
 
             //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
             nameForPdf = calculateSha1Hex(bytesArrayuploadedInputStream);
@@ -229,14 +156,27 @@ public final class ApiResouce {
             File output = new File(fullPathIncludedPdfName);
             FileOutputStream out = new FileOutputStream(output);
 
+            //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
             databaseInstance.insertStagpdfaLogs(nameForPdf);
 
             //clone of input stream for building POST
             InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
+            InputStream secondCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
             out.write(bytesArrayuploadedInputStream);
             out.close();
-            //for testing purpouses commented /\
 
+            try {
+                //https://www.programcreek.com/java-api-examples/?class=java.security.DigestInputStream&method=read
+                MessageDigest digestV = MessageDigest.getInstance("SHA-1");
+                DigestInputStream dis = new DigestInputStream(secondCloneUploadedInputStream, digestV);
+                while (dis.read(bytesArrayuploadedInputStream) > 0) ;
+                while (dis.read(bytesArrayuploadedInputStream) > 0) ;
+                String vT = String.format("%040x", new BigInteger(1, digestV.digest()));
+                dis.close();
+            } catch (NoSuchAlgorithmException e) {
+                e.getStackTrace();
+                System.out.println(ExceptionUtils.getStackTrace(e));
+            }
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
             //http://localhost:9090/api/validate/auto
@@ -416,7 +356,7 @@ public final class ApiResouce {
             Sha1Hex = String.format("%040x", new BigInteger(1, digest.digest()));
             return Sha1Hex;
         } catch (Exception e) {
-            e.getMessage();
+            e.getStackTrace();
             return Sha1Hex;
         }
     }
