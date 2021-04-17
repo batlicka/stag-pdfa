@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -24,7 +22,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import org.api.CustomJsonDeserializer;
-import org.api.CustomJsonFileDeserializer;
 import org.api.CustomResponse;
 import org.api.SQLite;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -35,9 +32,7 @@ import javax.ws.rs.core.Response;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
