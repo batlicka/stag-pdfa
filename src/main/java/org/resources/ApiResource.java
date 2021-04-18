@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -32,7 +33,9 @@ import javax.ws.rs.core.Response;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -134,16 +137,21 @@ public final class ApiResource {
 
 
         try {
+
+
             //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
             //saveing of uploadedInputStream to pdf in local folder
             //create byte array from accepted uploadedInputStream
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(uploadedInputStream, baos);
             byte[] bytesArrayuploadedInputStream = baos.toByteArray();
+
+
             /*//alternative ways of copying to byte array
             InputStream is;
             byte[] array = is.readAllBytes();
             byte[] bytes = IOUtils.toByteArray(is);*/
+
 
             //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
             nameForPdf = calculateSha1Hex(bytesArrayuploadedInputStream);
@@ -161,18 +169,46 @@ public final class ApiResource {
             out.write(bytesArrayuploadedInputStream);
             out.close();
 
+            String fullPathIncludedPdfName2 = pathToSentFilesFolder + "test" + ".pdf";
+            File targetFile = new File(fullPathIncludedPdfName2);
+            //FileUtils.copyInputStreamToFile(firstCloneUploadedInputStream,targetFile);
+
+
+            String Sha1Hex = "";
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-1");
+                digest.reset();
+                //digest.update(value.getBytes("utf8"));
+                OutputStream outputStream = new FileOutputStream(targetFile);
+                byte[] buffer = new byte[8 * 1024];
+                int bytesRead;
+                while ((bytesRead = secondCloneUploadedInputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                    digest.update(buffer, 0, bytesRead);
+                }
+                IOUtils.closeQuietly(secondCloneUploadedInputStream);
+                IOUtils.closeQuietly(outputStream);
+
+                Sha1Hex = String.format("%040x", new BigInteger(1, digest.digest()));
+
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+
             /*try {
                 //https://www.programcreek.com/java-api-examples/?class=java.security.DigestInputStream&method=read
                 MessageDigest digestV = MessageDigest.getInstance("SHA-1");
                 DigestInputStream dis = new DigestInputStream(secondCloneUploadedInputStream, digestV);
+
                 while (dis.read(bytesArrayuploadedInputStream) > 0) ;
-                while (dis.read(bytesArrayuploadedInputStream) > 0) ;
+
                 String vT = String.format("%040x", new BigInteger(1, digestV.digest()));
                 dis.close();
             } catch (NoSuchAlgorithmException e) {
                 e.getStackTrace();
                 System.out.println(ExceptionUtils.getStackTrace(e));
             }*/
+
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
             //http://localhost:9090/api/validate/auto
