@@ -33,6 +33,8 @@ import javax.ws.rs.core.Response;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -136,6 +138,10 @@ public final class ApiResource {
         Integer statusCode = 0;
 
 
+        if (uploadedInputStream.markSupported()) {
+            uploadedInputStream.mark(0);
+        }
+
         try {
 
 
@@ -146,12 +152,13 @@ public final class ApiResource {
             IOUtils.copy(uploadedInputStream, baos);
             byte[] bytesArrayuploadedInputStream = baos.toByteArray();
 
-
             /*//alternative ways of copying to byte array
             InputStream is;
             byte[] array = is.readAllBytes();
-            byte[] bytes = IOUtils.toByteArray(is);*/
-
+            byte[] bytes = IOUtils.toByteArray(is);
+            \/
+            //byte[] bytesArrayuploadedInputStream = IOUtils.toByteArray(uploadedInputStream);
+            */
 
             //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
             nameForPdf = calculateSha1Hex(bytesArrayuploadedInputStream);
@@ -161,7 +168,6 @@ public final class ApiResource {
 
             //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
             databaseInstance.insertStagpdfaLogs(nameForPdf);
-
 
             //clone of input stream for building POST
             InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
@@ -173,13 +179,15 @@ public final class ApiResource {
             File targetFile = new File(fullPathIncludedPdfName2);
             //FileUtils.copyInputStreamToFile(firstCloneUploadedInputStream,targetFile);
 
-
+            secondCloneUploadedInputStream.mark(0);
             String Sha1Hex = "";
+            String temp_NameOfFile = "";
             try {
                 MessageDigest digest = MessageDigest.getInstance("SHA-1");
                 digest.reset();
                 //digest.update(value.getBytes("utf8"));
                 OutputStream outputStream = new FileOutputStream(targetFile);
+                //https://www.baeldung.com/convert-input-stream-to-a-file
                 byte[] buffer = new byte[8 * 1024];
                 int bytesRead;
                 while ((bytesRead = secondCloneUploadedInputStream.read(buffer)) != -1) {
@@ -191,23 +199,16 @@ public final class ApiResource {
 
                 Sha1Hex = String.format("%040x", new BigInteger(1, digest.digest()));
 
+                java.nio.file.Path source = java.nio.file.Paths.get(fullPathIncludedPdfName2);
+                temp_NameOfFile = pathToSentFilesFolder + Sha1Hex + "flow" + ".pdf";
+                Files.move(source, source.resolveSibling(temp_NameOfFile), StandardCopyOption.REPLACE_EXISTING);
             } catch (Exception e) {
                 e.getStackTrace();
             }
 
-            /*try {
-                //https://www.programcreek.com/java-api-examples/?class=java.security.DigestInputStream&method=read
-                MessageDigest digestV = MessageDigest.getInstance("SHA-1");
-                DigestInputStream dis = new DigestInputStream(secondCloneUploadedInputStream, digestV);
+            File savedFile = new File(temp_NameOfFile);
+            InputStream fileInputStream = new FileInputStream(savedFile);
 
-                while (dis.read(bytesArrayuploadedInputStream) > 0) ;
-
-                String vT = String.format("%040x", new BigInteger(1, digestV.digest()));
-                dis.close();
-            } catch (NoSuchAlgorithmException e) {
-                e.getStackTrace();
-                System.out.println(ExceptionUtils.getStackTrace(e));
-            }*/
 
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
@@ -225,7 +226,7 @@ public final class ApiResource {
 
 
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("file", firstCloneUploadedInputStream);
+            builder.addBinaryBody("file", fileInputStream);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
             HttpEntity multipart = builder.build();
             //podívat se zda metoda build streamuje přímo, nebo blokuje
@@ -392,4 +393,5 @@ public final class ApiResource {
             return Sha1Hex;
         }
     }
+
 }
