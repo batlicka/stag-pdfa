@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -21,9 +22,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
-import org.api.CustomJsonDeserializer;
-import org.api.CustomResponse;
-import org.api.SQLite;
+import org.api.*;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
@@ -32,7 +31,12 @@ import javax.ws.rs.core.Response;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +50,7 @@ public final class ApiResource {
     private static LinkedHashMap<String, List<String>> stagpdfa;
     private static String delayProcessingTheRequest;
     private static String testSwitch;
+    private static String inputStramProcessor;
 
     public ApiResource(Map stagpdfa) {
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
@@ -59,6 +64,7 @@ public final class ApiResource {
         this.databaseInstance = new SQLite(this.stagpdfa.get("databaseUrlJdbc").get(0), this.stagpdfa.get("cleanDatabaseTableAtStart").get(0));
         this.delayProcessingTheRequest = this.stagpdfa.get("delayProcessingTheRequest").get(0);
         this.testSwitch = this.stagpdfa.get("testSwitch").get(0);
+        this.inputStramProcessor = this.stagpdfa.get("inputStramProcessor").get(0);
     }
 
     @GET
@@ -131,48 +137,30 @@ public final class ApiResource {
         String errorMessage = "";
         //default value of status code is 0, during running of program it is set on proper value
         Integer statusCode = 0;
+        InputStream inputStreamFromClass;
 
 
         try {
-            //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
-            //saveing of uploadedInputStream to pdf in local folder
-            //create byte array from accepted uploadedInputStream
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(uploadedInputStream, baos);
-            byte[] bytesArrayuploadedInputStream = baos.toByteArray();
-            /*//alternative ways of copying to byte array
-            InputStream is;
-            byte[] array = is.readAllBytes();
-            byte[] bytes = IOUtils.toByteArray(is);*/
-
-            //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
-            nameForPdf = calculateSha1Hex(bytesArrayuploadedInputStream);
-            String fullPathIncludedPdfName = pathToSentFilesFolder + nameForPdf + ".pdf";
-            File output = new File(fullPathIncludedPdfName);
-            FileOutputStream out = new FileOutputStream(output);
+            if (inputStramProcessor.equals("oldInputStreamProcessor")) {
+                //processing of InputStream solution 1
+                OldInputStreamProcessor oldispInstance = new OldInputStreamProcessor(pathToSentFilesFolder);
+                oldispInstance.saveFileAndClculateSHA1(uploadedInputStream);
+                //load input stream from bytesArray
+                inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
+            } else if (inputStramProcessor.equals("InputStreamProcessor")) {
+                //processing of InputStream solution 2
+                InputStreamProcessor ispInstance = new InputStreamProcessor(pathToSentFilesFolder);
+                nameForPdf = ispInstance.saveFileAndClculateSHA1(uploadedInputStream);
+                //load input stream from file
+                inputStreamFromClass = ispInstance.createInputStreamFromFile();
+            } else {
+                //Saveing processed file on disk and calculating sha1 from processed file is switched off
+                inputStreamFromClass = uploadedInputStream;
+            }
 
             //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
             databaseInstance.insertStagpdfaLogs(nameForPdf);
 
-
-            //clone of input stream for building POST
-            InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
-            InputStream secondCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
-            out.write(bytesArrayuploadedInputStream);
-            out.close();
-
-            /*try {
-                //https://www.programcreek.com/java-api-examples/?class=java.security.DigestInputStream&method=read
-                MessageDigest digestV = MessageDigest.getInstance("SHA-1");
-                DigestInputStream dis = new DigestInputStream(secondCloneUploadedInputStream, digestV);
-                while (dis.read(bytesArrayuploadedInputStream) > 0) ;
-                while (dis.read(bytesArrayuploadedInputStream) > 0) ;
-                String vT = String.format("%040x", new BigInteger(1, digestV.digest()));
-                dis.close();
-            } catch (NoSuchAlgorithmException e) {
-                e.getStackTrace();
-                System.out.println(ExceptionUtils.getStackTrace(e));
-            }*/
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
             //http://localhost:9090/api/validate/auto
@@ -189,7 +177,7 @@ public final class ApiResource {
 
 
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("file", firstCloneUploadedInputStream);
+            builder.addBinaryBody("file", inputStreamFromClass);
             //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
             HttpEntity multipart = builder.build();
             //podívat se zda metoda build streamuje přímo, nebo blokuje
@@ -295,6 +283,10 @@ public final class ApiResource {
             errorMessage = ExceptionUtils.getStackTrace(e6);
             statusCode = 500;
             System.out.println(errorMessage);
+        } catch (NoSuchAlgorithmException e7) {
+            errorMessage = ExceptionUtils.getStackTrace(e7);
+            statusCode = 500;
+            System.out.println(errorMessage);
         }
         request_time.stop();
 
@@ -337,23 +329,6 @@ public final class ApiResource {
                     .entity("{\"Error 500 Internal Server Error\"} ")
                     .type(MediaType.APPLICATION_JSON)
                     .build();
-        }
-    }
-
-    public static String calculateSha1Hex(byte[] bytesArrayuploadedInputStream){
-        // With the java libraries
-        //https://www.baeldung.com/convert-input-stream-to-array-of-bytes
-        String Sha1Hex="";
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            digest.reset();
-            //digest.update(value.getBytes("utf8"));
-            digest.update(bytesArrayuploadedInputStream);
-            Sha1Hex = String.format("%040x", new BigInteger(1, digest.digest()));
-            return Sha1Hex;
-        } catch (Exception e) {
-            e.getStackTrace();
-            return Sha1Hex;
         }
     }
 }

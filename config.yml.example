@@ -43,4 +43,6 @@ stagpdfa:
   testSwitch:
     #parameters: deff, f31, f32, f4, f5, f6
     - f5
-
+  inputStramProcessor:
+    #parameters: InputStreamProcessor, oldInputStreamProcessor
+    - InputStreamProcessor
