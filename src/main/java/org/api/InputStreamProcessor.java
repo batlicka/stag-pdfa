@@ -43,10 +43,11 @@ public class InputStreamProcessor {
         Sha1Hex = String.format("%040x", new BigInteger(1, digest.digest()));
 
         //rename temp.pdf by Sha1Hex
-        java.nio.file.Path source = java.nio.file.Paths.get(fullPathIncludedTempPdfName);
+        //java.nio.file.Path source = java.nio.file.Paths.get(fullPathIncludedTempPdfName);
         fullPathIncludedPdfName = pathToSentFilesFolder + Sha1Hex + ".pdf";
-        Files.move(source, source.resolveSibling(fullPathIncludedPdfName), StandardCopyOption.REPLACE_EXISTING);
-
+        //Files.move(source, source.resolveSibling(fullPathIncludedPdfName), StandardCopyOption.REPLACE_EXISTING);
+        //FileUtils.moveFile(FileUtils.getFile(fullPathIncludedTempPdfName), FileUtils.getFile(fullPathIncludedPdfNewName));
+        targetFile.renameTo(new File(fullPathIncludedPdfName));
         return Sha1Hex;
     }
 
