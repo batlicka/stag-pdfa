@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
@@ -138,6 +139,7 @@ public final class ApiResource {
         Integer statusCode = 0;
         InputStream inputStreamFromClass;
 
+
         try {
             if (inputStramProcessor.equals("oldInputStreamProcessor")) {
                 //processing of InputStream solution 1
@@ -145,12 +147,15 @@ public final class ApiResource {
                 oldispInstance.saveFileAndClculateSHA1(uploadedInputStream);
                 //load input stream from bytesArray
                 inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
-            } else {
+            } else if (inputStramProcessor.equals("InputStreamProcessor")) {
                 //processing of InputStream solution 2
                 InputStreamProcessor ispInstance = new InputStreamProcessor(pathToSentFilesFolder);
                 nameForPdf = ispInstance.saveFileAndClculateSHA1(uploadedInputStream);
                 //load input stream from file
                 inputStreamFromClass = ispInstance.createInputStreamFromFile();
+            } else {
+                //Saveing processed file on disk and calculating sha1 from processed file is switched off
+                inputStreamFromClass = uploadedInputStream;
             }
 
             //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
