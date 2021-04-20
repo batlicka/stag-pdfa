@@ -27,7 +27,7 @@ public class InputStreamProcessor {
 
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
         digest.reset();
-        String fullPathIncludedTempPdfName = pathToSentFilesFolder + "test" + ".pdf";
+        String fullPathIncludedTempPdfName = pathToSentFilesFolder + "temp" + ".pdf";
 
         File targetFile = new File(fullPathIncludedTempPdfName);
         OutputStream outputStream = new FileOutputStream(targetFile);
@@ -43,11 +43,8 @@ public class InputStreamProcessor {
         Sha1Hex = String.format("%040x", new BigInteger(1, digest.digest()));
 
         //rename temp.pdf by Sha1Hex
-        //java.nio.file.Path source = java.nio.file.Paths.get(fullPathIncludedTempPdfName);
         fullPathIncludedPdfName = pathToSentFilesFolder + Sha1Hex + ".pdf";
-        //Files.move(source, source.resolveSibling(fullPathIncludedPdfName), StandardCopyOption.REPLACE_EXISTING);
-        //FileUtils.moveFile(FileUtils.getFile(fullPathIncludedTempPdfName), FileUtils.getFile(fullPathIncludedPdfNewName));
-        targetFile.renameTo(new File(fullPathIncludedPdfName));
+        RenameFile(targetFile);
         return Sha1Hex;
     }
 
@@ -56,5 +53,9 @@ public class InputStreamProcessor {
         File savedFile = new File(fullPathIncludedPdfName);
         InputStream fileInputStream = new FileInputStream(savedFile);
         return fileInputStream;
+    }
+
+    public void RenameFile(File targetFile) throws SecurityException, NullPointerException {
+        targetFile.renameTo(new File(fullPathIncludedPdfName));
     }
 }

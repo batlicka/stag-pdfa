@@ -287,6 +287,14 @@ public final class ApiResource {
             errorMessage = ExceptionUtils.getStackTrace(e7);
             statusCode = 500;
             System.out.println(errorMessage);
+        } catch (SecurityException e8) {
+            errorMessage = ExceptionUtils.getStackTrace(e8);
+            statusCode = 500;
+            System.out.println(errorMessage);
+        } catch (NullPointerException e9) {
+            errorMessage = ExceptionUtils.getStackTrace(e9);
+            statusCode = 500;
+            System.out.println(errorMessage);
         }
         request_time.stop();
 
