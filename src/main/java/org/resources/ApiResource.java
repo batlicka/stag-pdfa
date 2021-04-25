@@ -149,6 +149,7 @@ public final class ApiResource {
                 inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
             } else if (inputStramProcessor.equals("InputStreamProcessor")) {
                 //processing of InputStream solution 2
+                long start = System.nanoTime();
                 InputStreamProcessor ispInstance = new InputStreamProcessor(pathToSentFilesFolder);
                 nameForPdf = ispInstance.saveFileAndClculateSHA1(uploadedInputStream);
                 //load input stream from file
@@ -332,6 +333,8 @@ public final class ApiResource {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } else {
+            /*Email em=new Email();
+            em.sendEamil(errorMessage);*/
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"Error 500 Internal Server Error\"} ")
