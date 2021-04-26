@@ -46,3 +46,10 @@ stagpdfa:
   inputStramProcessor:
     #parameters: InputStreamProcessor, oldInputStreamProcessor
     - InputStreamProcessor
+  javaMail:
+    - skautfoto@vagunda.eu    #user
+    - portal35                #pass
+    - skautfoto@vagunda.eu    #from
+    - vojta@vagunda.eu          #to
+    - smtp.gmail.com          #host
+    - 587                     #port

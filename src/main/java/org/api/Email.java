@@ -1,56 +1,64 @@
 package org.api;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.*;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 
 public class Email {
-    private String smtp;
-    private Properties prop = new Properties();
-    private String user = "v_vagunda@utb.cz";
-    private String pass = "portal35";
-    private String from = "v_vagunda@utb.cz";
-    private String to = "v_vagunda@utb.cz";
-    private String smtpServer = "smtp.utb.cz";
+    private Properties prop = System.getProperties();
+    private String user;// = "skautfoto@vagunda.eu";//v_vagunda@utb.cz
+    private String pass;// = "portal35";
+    private String from;// = "skautfoto@vagunda.eu";//v_vagunda@utb.cz
+    private String to;// = "vojta@vagunda.eu";
+    private String host;// = "smtp.gmail.com";//smtp.utb.cz
+    private String port;// = "587";//google 587
 
-    //https://www.baeldung.com/java-email
-    public Email() {
-        this.smtp = smtp;
-        prop.setProperty("mail.smtp.host", smtpServer);
-        prop.put("mail.smtp.port", "25");
+    //https://stackoverflow.com/questions/46663/how-can-i-send-an-email-by-java-application-using-gmail-yahoo-or-hotmail
+    //for gmail is needfull allow access for less secured applications: https://support.google.com/accounts/answer/6010255#zippy=%2Ckdy%C5%BE-je-v-%C3%BA%C4%8Dtu-zapnut%C3%BD-p%C5%99%C3%ADstup-pro-m%C3%A9n%C4%9B-zabezpe%C4%8Den%C3%A9-aplikace
+    public Email(ArrayList<String> emailProperties) {
+        this.user = emailProperties.get(0);
+        this.pass = emailProperties.get(1);
+        this.from = emailProperties.get(2);
+        this.to = emailProperties.get(3);
+        this.host = emailProperties.get(4);
+        this.port = emailProperties.get(5);
+
         prop.put("mail.smtp.starttls.enable", "true");
+        prop.put("mail.smtp.host", host);
+        prop.put("mail.smtp.user", from);
+        prop.put("mail.smtp.password", pass);
+        prop.put("mail.smtp.port", port);
         prop.put("mail.smtp.auth", true);
     }
 
     public void sendEamil(String content) {
-        Session session = Session.getInstance(prop, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, pass);
-            }
-        });
+        //Session session = Session.getDefaultInstance(prop);
+        Session session = Session.getInstance(prop,
+                new javax.mail.Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(user, pass);
+                    }
+                });
 
+        Message message = new MimeMessage(session);
         try {
-            Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
-            message.setRecipients(
-                    Message.RecipientType.TO, InternetAddress.parse(to));
-            message.setSubject("Test email");
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.setSubject("Report from stag-pdfa");
+            message.setText(content);
 
-            MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            mimeBodyPart.setContent(content, "text/html");
+            Transport transport = session.getTransport("smtp");
+            transport.connect(host, from, pass);
+            transport.sendMessage(message, message.getAllRecipients());
+            transport.close();
 
-            Multipart multipart = new MimeMultipart();
-            multipart.addBodyPart(mimeBodyPart);
-
-            message.setContent(multipart);
-
-            Transport.send(message);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            System.out.println(ExceptionUtils.getStackTrace(e));
         }
     }
 }

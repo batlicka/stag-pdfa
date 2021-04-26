@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
 
 @Path("/api")
 public final class ApiResource {
-    private static final String SHA1_NAME = "SHA-1";
     private static ArrayList<String> RuleViolationException = new ArrayList<String>();
     private static String urlToVeraPDFrest;
     private static String pathToSentFilesFolder;
@@ -51,6 +50,7 @@ public final class ApiResource {
     private static String delayProcessingTheRequest;
     private static String testSwitch;
     private static String inputStramProcessor;
+    private static ArrayList<String> emailPropertisies;
 
     public ApiResource(Map stagpdfa) {
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
@@ -65,6 +65,7 @@ public final class ApiResource {
         this.delayProcessingTheRequest = this.stagpdfa.get("delayProcessingTheRequest").get(0);
         this.testSwitch = this.stagpdfa.get("testSwitch").get(0);
         this.inputStramProcessor = this.stagpdfa.get("inputStramProcessor").get(0);
+        this.emailPropertisies = new ArrayList<String>(this.stagpdfa.get("javaMail"));
     }
 
     @GET
@@ -138,7 +139,7 @@ public final class ApiResource {
         //default value of status code is 0, during running of program it is set on proper value
         Integer statusCode = 0;
         InputStream inputStreamFromClass;
-
+        Email email = new Email(emailPropertisies);
 
         try {
             if (inputStramProcessor.equals("oldInputStreamProcessor")) {
@@ -305,12 +306,15 @@ public final class ApiResource {
         //only for testing purpouses
         if (testSwitch.equals("f5")) {
             responseMessage = "{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+            email.sendEamil(responseMessage);
         } else if (testSwitch.equals("f32")) {
             responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
+            email.sendEamil(responseMessage);
         } else if (testSwitch.equals("f31")) {
             System.out.println("response Message returned to IS stag: ");
             responseMessage = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" /></head><body><h2>This is test response in html</h2></body></html>";
             System.out.println(responseMessage);
+            email.sendEamil(responseMessage);
             return Response
                     .status(Response.Status.OK)
                     .type(MediaType.TEXT_HTML)
@@ -318,6 +322,7 @@ public final class ApiResource {
                     .build();
         } else if (testSwitch.equals("f4")) {
             responseMessage = "{\"klic\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+            email.sendEamil(responseMessage);
         } else {
             //return responseMessage in normal form
         }
@@ -333,8 +338,7 @@ public final class ApiResource {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } else {
-            /*Email em=new Email();
-            em.sendEamil(errorMessage);*/
+            email.sendEamil(errorMessage);
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"Error 500 Internal Server Error\"} ")
