@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -30,19 +29,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.io.*;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Path("/api")
 public final class ApiResource {
-    private static ArrayList<String> RuleViolationException = new ArrayList<String>();
+    private static ArrayList<String> ruleViolationExceptions = new ArrayList<String>();
     private static String urlToVeraPDFrest;
     private static String pathToSentFilesFolder;
     private static SQLite databaseInstance;
@@ -58,7 +51,7 @@ public final class ApiResource {
 
         //SQLite databaseInstance = new SQLite(configuration.getStagpdfa().get("configuration.getStagpdfa()").get(0));
         this.stagpdfa = new LinkedHashMap<String, List<String>>(stagpdfa);
-        RuleViolationException = new ArrayList<String>(this.stagpdfa.get("exceptions"));
+        ruleViolationExceptions = new ArrayList<String>(this.stagpdfa.get("exceptions"));
         this.pathToSentFilesFolder = this.stagpdfa.get("pathToSentFilesFolder").get(0);
         this.urlToVeraPDFrest = this.stagpdfa.get("urlToVeraPDFrest").get(0);
         this.databaseInstance = new SQLite(this.stagpdfa.get("databaseUrlJdbc").get(0), this.stagpdfa.get("cleanDatabaseTableAtStart").get(0));
@@ -216,30 +209,22 @@ public final class ApiResource {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode rootNode = mapper.readTree(responseString);
                 CustomJsonDeserializer des = new CustomJsonDeserializer(rootNode);
+                CustomRuleEvalutaion customRuleEvalInstance = new CustomRuleEvalutaion(ruleViolationExceptions, des.getViolatedRules(), des.getAttributeValueFromRoot("compliant"));
                 CustomResponse responseCurrent = new CustomResponse(
                         des.getAttributeValueFromRoot("compliant"),
                         des.getAttributeValueFromRoot("pdfaflavour"),
-                        des.getTestAssertionsArray()
+                        customRuleEvalInstance
                 );
                 //logování veraPDF-rest compliant to SQLite database with logs
                 vera_pdf_rest_response = responseCurrent.getCompliant();
 
                 //decision logic agreed on google docs
-                if (responseCurrent.getCompliant().equalsIgnoreCase("true")) {
-                    responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                } else {
-                    responseCurrent.differenceRuleValidationExceptons(RuleViolationException);
-                    if (responseCurrent.getRuleValidationExceptions().isEmpty()) {
-                        responseCurrent.setCompliant("true");
-                        responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                    } else {
-                        responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                    }
-                }
+                responseMessage = responseCurrent.response();
+
                 //only for testing purpouse
                 System.out.println("result after difference of sets: ");
                 System.out.println("|Compliant: " + responseCurrent.getCompliant() + "|pdfaflavour: " + responseCurrent.getPdfaflavour());
-                System.out.println("List of Clauses: " + responseCurrent.getRuleValidationExceptions());
+                System.out.println("List of Clauses: " + customRuleEvalInstance.getRuleViolation());
                 System.out.println("responseMessage: ");
                 System.out.println(responseMessage);
             }else{

@@ -1,6 +1,8 @@
 package org.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,21 +17,21 @@ public class CustomResponse implements Serializable {
     private String compliant;
     //explanation of @JsonIgnore
     //https://www.baeldung.com/jackson-annotations
-    @JsonIgnore
     private String pdfaflavour;
-    @JsonIgnore
-    private ArrayList<String> ruleValidationExceptions;
+    CustomRuleEvalutaion customRuleEvalInstance;
 
     public CustomResponse() {
     }
 
-    public CustomResponse(String compliant, String pdfaflavour, ArrayList<String> ruleValidationExceptions) {
+    public CustomResponse(String compliant, String pdfaflavour, CustomRuleEvalutaion customRuleEvalInstance) {
         this.compliant = compliant;
         this.pdfaflavour = pdfaflavour;
-        this.ruleValidationExceptions = ruleValidationExceptions;
+        this.customRuleEvalInstance = customRuleEvalInstance;
     }
 
-    public void differenceRuleValidationExceptons(ArrayList<String> setOfExceptionsFromFile) {
-        ruleValidationExceptions.removeAll(setOfExceptionsFromFile);
+    public String response() throws JsonProcessingException {
+        customRuleEvalInstance.performDifferenceRuleViolation();
+        compliant = customRuleEvalInstance.getCompliant();
+        return new ObjectMapper().writeValueAsString(customRuleEvalInstance);
     }
 }

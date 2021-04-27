@@ -40,16 +40,15 @@ public class CustomJsonDeserializer {
         }
     }
 
-    public ArrayList<String> getTestAssertionsArray(){
+    public ArrayList<String> getViolatedRules() {
         ArrayList<String> testAsserrion = new ArrayList<String>();
-        ArrayNode arrayNode=(ArrayNode) rootNode.at("/testAssertions");
+        ArrayNode arrayNode = (ArrayNode) rootNode.at("/testAssertions");
 
-        if(arrayNode.isEmpty()){
+        if (arrayNode.isEmpty()) {
             return null;
-        }
-        else{
+        } else {
             JsonNode arrayElement;
-            for(int i=0; i<arrayNode.size();i++){
+            for (int i = 0; i < arrayNode.size(); i++) {
                 arrayElement = arrayNode.get(i).at("/ruleId");
                 testAsserrion.add(arrayElement.get("clause").asText());
             }
