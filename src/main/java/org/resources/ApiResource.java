@@ -214,11 +214,8 @@ public final class ApiResource {
                 System.out.println("From veraPDF-rest came response in Content-type: application/json");
 
                 ObjectMapper mapper = new ObjectMapper();
-                System.out.println("1");
                 JsonNode rootNode = mapper.readTree(responseString);
-                System.out.println("2");
                 CustomJsonDeserializer des = new CustomJsonDeserializer(rootNode);
-                System.out.println("3");
                 CustomResponse responseCurrent = new CustomResponse(
                         des.getAttributeValueFromRoot("compliant"),
                         des.getAttributeValueFromRoot("pdfaflavour"),
@@ -227,27 +224,16 @@ public final class ApiResource {
                 //logování veraPDF-rest compliant to SQLite database with logs
                 vera_pdf_rest_response = responseCurrent.getCompliant();
 
-                //rest api rozhodne, jak se výjimka ošetří
-                //na zobrazování chyb použít běžné http kody a chybu specifikovat v jeho správě
-
-                System.out.println("4");
                 //decision logic agreed on google docs
                 if (responseCurrent.getCompliant().equalsIgnoreCase("true")) {
-                    System.out.println("5.1");
                     responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
                 } else {
-                    System.out.println("6.1");
                     responseCurrent.differenceRuleValidationExceptons(RuleViolationException);
-                    System.out.println("6.2");
                     if (responseCurrent.getRuleValidationExceptions().isEmpty()) {
-                        System.out.println("7.1");
                         responseCurrent.setCompliant("true");
-                        System.out.println("7.2");
                         responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                        System.out.println("7.3");
                     } else {
                         responseMessage = new ObjectMapper().writeValueAsString(responseCurrent);
-                        System.out.println("8.1");
                     }
                 }
                 //only for testing purpouse
