@@ -3,12 +3,10 @@ package org.api;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 
 @Getter
-@Setter
 public class CustomRuleEvalutaion {
     //explanation of @JsonIgnore
     //https://www.baeldung.com/jackson-annotations
