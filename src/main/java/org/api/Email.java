@@ -49,6 +49,7 @@ public class Email {
                         }
                     });
         } else {
+            prop.put("mail.smtp.ssl.trust", "smtp.gmail.com");
             session = Session.getDefaultInstance(prop);
         }
 
