@@ -16,7 +16,7 @@ public class Email {
     private String to;// = "vojta@vagunda.eu";
     private String host;// = "smtp.gmail.com";//smtp.utb.cz
     private String port;// = "587";//google 587
-    private String auth;
+    private Boolean authentizaion;
     private Session session;
 
     //https://stackoverflow.com/questions/46663/how-can-i-send-an-email-by-java-application-using-gmail-yahoo-or-hotmail
@@ -28,19 +28,18 @@ public class Email {
         this.to = emailProperties.get(3);
         this.host = emailProperties.get(4);
         this.port = emailProperties.get(5);
-        this.auth = emailProperties.get(6);
+        this.authentizaion = Boolean.parseBoolean(emailProperties.get(6));
 
         prop.put("mail.smtp.user", from);
         prop.put("mail.smtp.port", port);
         prop.put("mail.smtp.starttls.enable", "true");
-
+        prop.put("mail.smtp.host", host);
     }
 
     public void sendEamil(String content) {
         //Session session = Session.getDefaultInstance(prop);
-        if ((auth.equals("true"))) {
+        if ((authentizaion)) {
             prop.put("mail.smtp.auth", true);
-            prop.put("mail.smtp.host", host);
             prop.put("mail.smtp.password", pass);
             session = Session.getInstance(prop,
                     new javax.mail.Authenticator() {
@@ -50,7 +49,6 @@ public class Email {
                         }
                     });
         } else {
-            prop.put("mail.smtp.auth", false);
             session = Session.getDefaultInstance(prop);
         }
 
