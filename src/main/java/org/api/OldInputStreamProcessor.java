@@ -18,7 +18,7 @@ public class OldInputStreamProcessor {
         this.pathToSentFilesFolder = pathToSentFilesFolder;
     }
 
-    public String saveFileAndClculateSHA1(InputStream uploadedInputStream) throws IOException {
+    public String saveFileAndCalculateSHA1(InputStream uploadedInputStream) throws IOException {
         //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
         //saveing of uploadedInputStream to pdf in local folder
         //create byte array from accepted uploadedInputStream
@@ -40,7 +40,6 @@ public class OldInputStreamProcessor {
         FileOutputStream out = new FileOutputStream(output);
 
         //save file
-        InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
         out.write(bytesArrayuploadedInputStream);
         out.close();
 
@@ -48,13 +47,11 @@ public class OldInputStreamProcessor {
     }
 
     public String calculateSha1Hex(byte[] bytesArrayuploadedInputStream) {
-        // With the java libraries
         //https://www.baeldung.com/convert-input-stream-to-array-of-bytes
         String Sha1Hex = "";
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
             digest.reset();
-            //digest.update(value.getBytes("utf8"));
             digest.update(bytesArrayuploadedInputStream);
             Sha1Hex = String.format("%040x", new BigInteger(1, digest.digest()));
             return Sha1Hex;

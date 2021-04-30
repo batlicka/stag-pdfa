@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.http.HttpEntity;
@@ -59,27 +58,6 @@ public final class ApiResource {
         this.testSwitch = this.stagpdfa.get("testSwitch").get(0);
         this.inputStramProcessor = this.stagpdfa.get("inputStramProcessor").get(0);
         this.emailPropertisies = new ArrayList<String>(this.stagpdfa.get("javaMail"));
-    }
-
-    @GET
-    @Path("/test")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getConstant(@QueryParam("var") Optional<String> var) {
-        String initialString = "Hello World!";
-        File out = new File("out.pdf");
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        try {
-            out.createNewFile();
-            OutputStream fos = new FileOutputStream(out);
-            InputStream uploadedInputStreamV = IOUtils.toInputStream(initialString, "UTF-8");
-            IOUtils.copy(uploadedInputStreamV, fos);
-            fos.close();
-            uploadedInputStreamV.close();
-            // If there wasn't a file there beforehand, there is one now.
-        } catch (IOException e) {
-            // If there was, no harm, no foul
-        }
-        return "ahoj: " + var.toString();
     }
 
     @GET
@@ -136,20 +114,17 @@ public final class ApiResource {
 
         try {
             if (inputStramProcessor.equals("oldInputStreamProcessor")) {
-                //processing of InputStream solution 1
                 OldInputStreamProcessor oldispInstance = new OldInputStreamProcessor(pathToSentFilesFolder);
-                oldispInstance.saveFileAndClculateSHA1(uploadedInputStream);
+                nameForPdf = oldispInstance.saveFileAndCalculateSHA1(uploadedInputStream);
                 //load input stream from bytesArray
                 inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
             } else if (inputStramProcessor.equals("InputStreamProcessor")) {
-                //processing of InputStream solution 2
-                long start = System.nanoTime();
                 InputStreamProcessor ispInstance = new InputStreamProcessor(pathToSentFilesFolder);
                 nameForPdf = ispInstance.saveFileAndClculateSHA1(uploadedInputStream);
                 //load input stream from file
                 inputStreamFromClass = ispInstance.createInputStreamFromFile();
             } else {
-                //Saveing processed file on disk and calculating sha1 from processed file is switched off
+                //switch off saveing processed file on disk and calculating sha1
                 inputStreamFromClass = uploadedInputStream;
             }
 
@@ -168,12 +143,9 @@ public final class ApiResource {
             } else {
                 httpPost.setHeader("Accept", "application/json");
             }
-            //usualy " httpPost.setHeader("Accept", "application/json");" without if
-
 
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("file", inputStreamFromClass);
-            //builder.addBinaryBody("sha1Hex",IOUtils.toInputStream("e6393c003e014acaa8e6f342ae8f86a4e2e8f7bf", "UTF-8"));
             HttpEntity multipart = builder.build();
             //podívat se zda metoda build streamuje přímo, nebo blokuje
             httpPost.setEntity(multipart);
@@ -181,7 +153,6 @@ public final class ApiResource {
             //before execute client, start timer2, It will measure how long veraPDF-rest processing request.
             verapdf_rest_request_time.start();
             CloseableHttpResponse response = client.execute(httpPost);
-            //after obtaining response from veraPDF-rest stop stopwatch2
             verapdf_rest_request_time.stop();
 
             statusCode = response.getStatusLine().getStatusCode();
