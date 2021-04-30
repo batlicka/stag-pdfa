@@ -16,6 +16,8 @@ public class Email {
     private String to;// = "vojta@vagunda.eu";
     private String host;// = "smtp.gmail.com";//smtp.utb.cz
     private String port;// = "587";//google 587
+    private String auth = "true";
+    private Session session;
 
     //https://stackoverflow.com/questions/46663/how-can-i-send-an-email-by-java-application-using-gmail-yahoo-or-hotmail
     //for gmail is needfull allow access for less secured applications: https://support.google.com/accounts/answer/6010255#zippy=%2Ckdy%C5%BE-je-v-%C3%BA%C4%8Dtu-zapnut%C3%BD-p%C5%99%C3%ADstup-pro-m%C3%A9n%C4%9B-zabezpe%C4%8Den%C3%A9-aplikace
@@ -32,18 +34,24 @@ public class Email {
         prop.put("mail.smtp.user", from);
         prop.put("mail.smtp.password", pass);
         prop.put("mail.smtp.port", port);
-        prop.put("mail.smtp.auth", true);
+
     }
 
     public void sendEamil(String content) {
         //Session session = Session.getDefaultInstance(prop);
-        Session session = Session.getInstance(prop,
-                new javax.mail.Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(user, pass);
-                    }
-                });
+        if ((auth.equals("true"))) {
+            prop.put("mail.smtp.auth", true);
+            session = Session.getInstance(prop,
+                    new javax.mail.Authenticator() {
+                        @Override
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(user, pass);
+                        }
+                    });
+        } else {
+            prop.put("mail.smtp.auth", false);
+            session = Session.getDefaultInstance(prop);
+        }
 
         Message message = new MimeMessage(session);
         try {
