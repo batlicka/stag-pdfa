@@ -32,7 +32,6 @@ public class Email {
 
         prop.put("mail.smtp.user", from);
         prop.put("mail.smtp.port", port);
-        prop.put("mail.smtp.starttls.enable", "true");
         prop.put("mail.smtp.host", host);
     }
 
@@ -41,6 +40,7 @@ public class Email {
         if ((authentizaion)) {
             prop.put("mail.smtp.auth", true);
             prop.put("mail.smtp.password", pass);
+            prop.put("mail.smtp.starttls.enable", "true");
             session = Session.getInstance(prop,
                     new javax.mail.Authenticator() {
                         @Override
