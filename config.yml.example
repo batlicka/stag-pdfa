@@ -47,9 +47,10 @@ stagpdfa:
     #parameters: InputStreamProcessor, oldInputStreamProcessor
     - InputStreamProcessor
   javaMail:
-    - skautfoto@vagunda.eu    #user
-    - portal35                #pass
-    - skautfoto@vagunda.eu    #from
-    - vojta@vagunda.eu          #to
-    - smtp.gmail.com          #host
-    - 587                     #port
+   - skautfoto@vagunda.eu               #user - is used only if "user_authentization"==true
+   - portal35                           #pass - is used only if "user_authentization"==true"
+   - v_vagunda@utb.cz                   #from
+   - vojta@vagunda.eu                   #to
+   - smtp.utb.cz                        #host - for gmail: smtp.gmail.com
+   - 25                                 #port - for gmail: 587
+   - false                              #user_authentization - If "host"==smtp.utb.cz then set "user_authentization" on {false} in other cases set on {true}
