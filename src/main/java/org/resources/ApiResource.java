@@ -41,14 +41,13 @@ public final class ApiResource {
     private static LinkedHashMap<String, List<String>> stagpdfa;
     private static String delayProcessingTheRequest;
     private static String testSwitch;
-    private static String inputStramProcessor;
+    private static String inputStreamProcessor;
     private static ArrayList<String> emailPropertisies;
 
     public ApiResource(Map stagpdfa) {
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
         //https://stackoverflow.com/questions/13581997/how-get-value-from-linkedhashmap-based-on-index-not-on-key?answertab=votes#tab-top
 
-        //SQLite databaseInstance = new SQLite(configuration.getStagpdfa().get("configuration.getStagpdfa()").get(0));
         this.stagpdfa = new LinkedHashMap<String, List<String>>(stagpdfa);
         ruleViolationExceptions = new ArrayList<String>(this.stagpdfa.get("exceptions"));
         this.pathToSentFilesFolder = this.stagpdfa.get("pathToSentFilesFolder").get(0);
@@ -56,7 +55,7 @@ public final class ApiResource {
         this.databaseInstance = new SQLite(this.stagpdfa.get("databaseUrlJdbc").get(0), this.stagpdfa.get("cleanDatabaseTableAtStart").get(0));
         this.delayProcessingTheRequest = this.stagpdfa.get("delayProcessingTheRequest").get(0);
         this.testSwitch = this.stagpdfa.get("testSwitch").get(0);
-        this.inputStramProcessor = this.stagpdfa.get("inputStramProcessor").get(0);
+        this.inputStreamProcessor = this.stagpdfa.get("inputStramProcessor").get(0);
         this.emailPropertisies = new ArrayList<String>(this.stagpdfa.get("javaMail"));
     }
 
@@ -113,12 +112,12 @@ public final class ApiResource {
         Email email = new Email(emailPropertisies);
 
         try {
-            if (inputStramProcessor.equals("oldInputStreamProcessor")) {
+            if (inputStreamProcessor.equals("oldInputStreamProcessor")) {
                 OldInputStreamProcessor oldispInstance = new OldInputStreamProcessor(pathToSentFilesFolder);
                 nameForPdf = oldispInstance.saveFileAndCalculateSHA1(uploadedInputStream);
                 //load input stream from bytesArray
                 inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
-            } else if (inputStramProcessor.equals("InputStreamProcessor")) {
+            } else if (inputStreamProcessor.equals("InputStreamProcessor")) {
                 InputStreamProcessor ispInstance = new InputStreamProcessor(pathToSentFilesFolder);
                 nameForPdf = ispInstance.saveFileAndClculateSHA1(uploadedInputStream);
                 //load input stream from file
@@ -133,8 +132,6 @@ public final class ApiResource {
 
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(urlToVeraPDFrest);
-            //http://localhost:9090/api/validate/auto
-            //http://pdfa.k.utb.cz:8080/api/validate/auto
 
             //only for testing pursouses
             if (testSwitch.equals("f6")) {
@@ -156,21 +153,24 @@ public final class ApiResource {
             verapdf_rest_request_time.stop();
 
             statusCode = response.getStatusLine().getStatusCode();
-
             System.out.println(response.getStatusLine().getStatusCode());
             System.out.println(response.getStatusLine().getProtocolVersion());
             System.out.println(response.getStatusLine().getReasonPhrase());
 
             String responseString = new BasicResponseHandler().handleResponse(response);
             //System.out.println(responseString);
+            /*FileOutputStream outputStream = new FileOutputStream("D:\\tmp\\stag-pdfa_out.txt");
+            byte[] strToBytes = responseString.getBytes();
+            outputStream.write(strToBytes);
+            outputStream.close();*/
 
             //https://stackoverflow.com/questions/9077933/how-to-find-http-media-type-mime-type-from-response
             HttpEntity entity = response.getEntity();
             ContentType contentType;
-            String mimeType="";
-            if (entity != null){
+            String mimeType = "";
+            if (entity != null) {
                 contentType = ContentType.get(entity);
-                mimeType= contentType.getMimeType();
+                mimeType = contentType.getMimeType();
             }
 
             // parse JSON if response is in format application/json
