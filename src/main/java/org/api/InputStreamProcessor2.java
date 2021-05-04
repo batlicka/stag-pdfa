@@ -7,14 +7,14 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class OldInputStreamProcessor {
+public class InputStreamProcessor2 {
     private String Sha1Hex = "";
     private String fullPathIncludedPdfName = "";
     private String pathToSentFilesFolder;
     private byte[] bytesArrayuploadedInputStream;
     private InputStream firstCloneUploadedInputStream;
 
-    public OldInputStreamProcessor(String pathToSentFilesFolder) {
+    public InputStreamProcessor2(String pathToSentFilesFolder) {
         this.pathToSentFilesFolder = pathToSentFilesFolder;
     }
 

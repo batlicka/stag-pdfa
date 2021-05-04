@@ -1,14 +1,10 @@
 package org.resources;
 
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.http.client.ClientProtocolException;
 
 import org.api.*;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -101,13 +97,13 @@ public final class ApiResource {
         Email email = new Email(emailPropertisies);
         CustomHttpClient client = new CustomHttpClient(urlToVeraPDFrest);
         try {
-            if (inputStreamProcessor.equals("oldInputStreamProcessor")) {
-                OldInputStreamProcessor oldispInstance = new OldInputStreamProcessor(pathToSentFilesFolder);
+            if (inputStreamProcessor.equals("InputStreamProcessor2")) {
+                InputStreamProcessor2 oldispInstance = new InputStreamProcessor2(pathToSentFilesFolder);
                 nameForPdf = oldispInstance.saveFileAndCalculateSHA1(uploadedInputStream);
                 //load input stream from bytesArray
                 inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
-            } else if (inputStreamProcessor.equals("InputStreamProcessor")) {
-                InputStreamProcessor ispInstance = new InputStreamProcessor(pathToSentFilesFolder);
+            } else if (inputStreamProcessor.equals("InputStreamProcessor1")) {
+                InputStreamProcessor1 ispInstance = new InputStreamProcessor1(pathToSentFilesFolder);
                 nameForPdf = ispInstance.saveFileAndClculateSHA1(uploadedInputStream);
                 //load input stream from file
                 inputStreamFromClass = ispInstance.createInputStreamFromFile();
