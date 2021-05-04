@@ -42,9 +42,11 @@ public final class ApiResource {
         this.delayProcessingTheRequest = this.stagpdfa.get("delayProcessingTheRequest").get(0);
         this.testSwitch = this.stagpdfa.get("testSwitch").get(0);
         this.inputStreamProcessor = this.stagpdfa.get("inputStramProcessor").get(0);
+        //***mailPropertisies překlep
         this.emailPropertisies = new ArrayList<String>(this.stagpdfa.get("javaMail"));
     }
 
+    //***odstranit test
     @GET
     @Path("/{PathParam}/test2")
     @Produces(MediaType.TEXT_PLAIN)
@@ -56,7 +58,7 @@ public final class ApiResource {
     @Path("/ok")
     @Produces(MediaType.APPLICATION_JSON)//APPLICATION_JSON
     public Response getOkResponse() {
-
+        //***odstranit zdroj
         //https://www.baeldung.com/jax-rs-response
         String message = "{\"hello\": \"This is a JSON response\"}";
 
@@ -75,14 +77,10 @@ public final class ApiResource {
                                    @FormDataParam("sha1Hex") String sha1Hex,
                                    @FormDataParam("file") InputStream uploadedInputStream) {
 
-        return resendAndValidate(uploadedInputStream);
-    }
-
-    public static Response resendAndValidate(InputStream uploadedInputStream) {
         //time of processing on stag-pdfa
         StopWatch request_time = StopWatch.createStarted();
 
-        //for purpouse of testing,
+        //for purpose of testing,
         if (delayProcessingTheRequest.equals("true")) {
             try {
                 Thread.sleep(6000);
@@ -98,12 +96,14 @@ public final class ApiResource {
         CustomHttpClient client = new CustomHttpClient(urlToVeraPDFrest);
         try {
             if (inputStreamProcessor.equals("InputStreamProcessor2")) {
+                //*** InputStreamProcessor - stemetody
                 InputStreamProcessor2 oldispInstance = new InputStreamProcessor2(pathToSentFilesFolder);
                 nameForPdf = oldispInstance.saveFileAndCalculateSHA1(uploadedInputStream);
                 //load input stream from bytesArray
                 inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
             } else if (inputStreamProcessor.equals("InputStreamProcessor1")) {
                 InputStreamProcessor1 ispInstance = new InputStreamProcessor1(pathToSentFilesFolder);
+                //*** saveFileAndClculateSHA1 chybí ačko
                 nameForPdf = ispInstance.saveFileAndClculateSHA1(uploadedInputStream);
                 //load input stream from file
                 inputStreamFromClass = ispInstance.createInputStreamFromFile();
@@ -119,16 +119,12 @@ public final class ApiResource {
             client.sendRequest();
             client.processResponse(ruleViolationExceptions);
 
-        } catch (UnrecognizedPropertyException e1) {
-            client.setErrorMessage(ExceptionUtils.getStackTrace(e1));
-        } catch (IOException e6) {
-            client.setErrorMessage(ExceptionUtils.getStackTrace(e6));
-        } catch (NoSuchAlgorithmException e7) {
-            client.setErrorMessage(ExceptionUtils.getStackTrace(e7));
-        } catch (SecurityException e8) {
-            client.setErrorMessage(ExceptionUtils.getStackTrace(e8));
-        } catch (NullPointerException e9) {
-            client.setErrorMessage(ExceptionUtils.getStackTrace(e9));
+        } catch (UnrecognizedPropertyException ext) {
+            client.setErrorMessage(ExceptionUtils.getStackTrace(ext));
+        } catch (IOException ext) {
+            client.setErrorMessage(ExceptionUtils.getStackTrace(ext));
+        } catch (NoSuchAlgorithmException ext) {
+            client.setErrorMessage(ExceptionUtils.getStackTrace(ext));
         } finally {
             System.out.println(client.getErrorMessage());
         }
@@ -160,7 +156,9 @@ public final class ApiResource {
         return response;
     }
 
+
     public static Response setTestFaultyResponseMessage(Email email, Response response) {
+        //*** dopsat poznamky co se čím testuje
         String testResponseMessage = "";
         if (testSwitch.equals("f5") || testSwitch.equals("f32") || testSwitch.equals("f4")) {
             if (testSwitch.equals("f5")) {

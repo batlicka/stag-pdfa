@@ -19,7 +19,13 @@ public class SQLite {
     }
 
     private String sqlCreateQuery = String.format("create table stagpdfa_logs (%s text, %s text, %s integer, %s integer, %s integer, %s text, %s TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)",
-            columns.sha1, columns.verapdf_rest_response, columns.request_time, columns.verapdf_rest_request_time, columns.status_code, columns.error_message, columns.request_timestamp);
+            columns.sha1,
+            columns.verapdf_rest_response,
+            columns.request_time,
+            columns.verapdf_rest_request_time,
+            columns.status_code,
+            columns.error_message,
+            columns.request_timestamp);
 
 
     public SQLite(String databaseUrlJdbc, String cleanDatabaseTableAtStart) {

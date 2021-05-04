@@ -31,6 +31,7 @@ public class InputStreamProcessor1 {
 
         File targetFile = new File(fullPathIncludedTempPdfName);
         OutputStream outputStream = new FileOutputStream(targetFile);
+        //***odstranit odkaz
         //https://www.baeldung.com/convert-input-stream-to-a-file
         byte[] buffer = new byte[8 * 1024];
         int bytesRead;
