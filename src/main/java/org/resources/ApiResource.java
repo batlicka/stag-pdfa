@@ -74,7 +74,7 @@ public final class ApiResource {
         //https://www.baeldung.com/jax-rs-response
         String message = "{\"hello\": \"This is a JSON response\"}";
 
-       return Response
+        return Response
                 .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(message)
                 .type(MediaType.APPLICATION_JSON)
@@ -86,15 +86,20 @@ public final class ApiResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({MediaType.APPLICATION_JSON})
     public static Response safePdf(@PathParam("profileId") String profileId,
-                                 @FormDataParam("sha1Hex") String sha1Hex,
-                                 @FormDataParam("file") InputStream uploadedInputStream) {
+                                   @FormDataParam("sha1Hex") String sha1Hex,
+                                   @FormDataParam("file") InputStream uploadedInputStream) {
+
+        return resendAndValidate(uploadedInputStream);
+    }
+
+    public static Response resendAndValidate(InputStream uploadedInputStream) {
         //time of processing on stag-pdfa
         StopWatch request_time = StopWatch.createStarted();
         //time of processing on veraPdf-rest
         StopWatch verapdf_rest_request_time = new StopWatch();
 
         //for purpouse of testing,
-        if(delayProcessingTheRequest.equals("true")){
+        if (delayProcessingTheRequest.equals("true")) {
             try {
                 Thread.sleep(6000);
             } catch (InterruptedException inter) {
@@ -174,7 +179,7 @@ public final class ApiResource {
             }
 
             // parse JSON if response is in format application/json
-            if(mimeType.equalsIgnoreCase("application/json")) {
+            if (mimeType.equalsIgnoreCase("application/json")) {
                 System.out.println("From veraPDF-rest came response in Content-type: application/json");
 
                 ObjectMapper mapper = new ObjectMapper();
@@ -198,7 +203,7 @@ public final class ApiResource {
                 System.out.println("List of Clauses: " + customRuleEvalInstance.getRuleViolation());
                 System.out.println("responseMessage: ");
                 System.out.println(responseMessage);
-            }else{
+            } else {
                 //from veraPdf-rest was returned response in different Content-type than "application/json"
                 errorMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
                 //only for testing purpouses
@@ -245,47 +250,58 @@ public final class ApiResource {
         //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
         databaseInstance.updateStagpdfaLogs(vera_pdf_rest_response, (int) request_time.getTime(TimeUnit.MILLISECONDS), (int) verapdf_rest_request_time.getTime(TimeUnit.MILLISECONDS), statusCode, errorMessage, nameForPdf);
 
-        //only for testing purpouses
-        if (testSwitch.equals("f5")) {
-            responseMessage = "{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
-            email.sendEamil(responseMessage);
-        } else if (testSwitch.equals("f32")) {
-            responseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
-            email.sendEamil(responseMessage);
-        } else if (testSwitch.equals("f31")) {
-            System.out.println("response Message returned to IS stag: ");
-            responseMessage = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" /></head><body><h2>This is test response in html</h2></body></html>";
-            System.out.println(responseMessage);
-            email.sendEamil(responseMessage);
-            return Response
-                    .status(Response.Status.OK)
-                    .type(MediaType.TEXT_HTML)
-                    .entity(responseMessage)
-                    .build();
-        } else if (testSwitch.equals("f4")) {
-            responseMessage = "{\"klic\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
-            email.sendEamil(responseMessage);
-        } else {
-            //return responseMessage in normal form
-        }
-
-        //only for testing purpouses
-        System.out.println("response Message returned to IS stag: ");
-        System.out.println(responseMessage);
-
+        Response response;
         if (errorMessage.isEmpty()) {
-            return Response
+            response = Response
                     .status(Response.Status.OK)
                     .entity(responseMessage)
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } else {
             email.sendEamil(errorMessage);
-            return Response
+            response = Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"Error 500 Internal Server Error\"} ")
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
+        //only for testing purpouses
+        System.out.println("response Message returned to IS stag: ");
+        System.out.println(responseMessage);
+        response = setFaultyResponseMessage(email, response);
+
+        return response;
+    }
+
+    public static Response setFaultyResponseMessage(Email email, Response response) {
+        String testResponseMessage = "";
+        if (testSwitch.equals("f5") || testSwitch.equals("f32") || testSwitch.equals("f4")) {
+            if (testSwitch.equals("f5")) {
+                testResponseMessage = "{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+                email.sendEamil(testResponseMessage);
+            } else if (testSwitch.equals("f32")) {
+                testResponseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
+                email.sendEamil(testResponseMessage);
+            } else if (testSwitch.equals("f4")) {
+                testResponseMessage = "{\"klic\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
+                email.sendEamil(testResponseMessage);
+            }
+            response = Response
+                    .status(Response.Status.OK)
+                    .entity(testResponseMessage)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } else if (testSwitch.equals("f31")) {
+            System.out.println("response Message returned to IS stag: ");
+            testResponseMessage = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" /></head><body><h2>This is test response in html</h2></body></html>";
+            System.out.println(testResponseMessage);
+            email.sendEamil(testResponseMessage);
+            response = Response
+                    .status(Response.Status.OK)
+                    .type(MediaType.TEXT_HTML)
+                    .entity(testResponseMessage)
+                    .build();
+        }
+        return response;
     }
 }
