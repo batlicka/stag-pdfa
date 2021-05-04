@@ -19,6 +19,7 @@ server:
 
 stagpdfa:
   exceptions:
+  #Exceptions can be defined with specific testNumber like this - 6.1.2-1 or generally - 6.1.2
     - 6.1.2
     - 6.3.2
     - 6.1.7
