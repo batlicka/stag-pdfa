@@ -7,14 +7,14 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class OldInputStreamProcessor {
+public class InputStreamProcessor2 {
     private String Sha1Hex = "";
     private String fullPathIncludedPdfName = "";
-    private String pathToSentFilesFolder = "";
+    private String pathToSentFilesFolder;
     private byte[] bytesArrayuploadedInputStream;
     private InputStream firstCloneUploadedInputStream;
 
-    public OldInputStreamProcessor(String pathToSentFilesFolder) {
+    public InputStreamProcessor2(String pathToSentFilesFolder) {
         this.pathToSentFilesFolder = pathToSentFilesFolder;
     }
 
@@ -22,16 +22,7 @@ public class OldInputStreamProcessor {
         //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
         //saveing of uploadedInputStream to pdf in local folder
         //create byte array from accepted uploadedInputStream
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        IOUtils.copy(uploadedInputStream, baos);
-        bytesArrayuploadedInputStream = baos.toByteArray();
-        /*//alternative ways of copying to byte array
-        InputStream is;
-        byte[] array = is.readAllBytes();
-        byte[] bytes = IOUtils.toByteArray(is);
-        \/
-        //byte[] bytesArrayuploadedInputStream = IOUtils.toByteArray(uploadedInputStream);
-        */
+        bytesArrayuploadedInputStream = IOUtils.toByteArray(uploadedInputStream);
 
         //calculate sha1 from uploadedInputStream and create pdf file with it's sha1 name
         Sha1Hex = calculateSha1Hex(bytesArrayuploadedInputStream);

@@ -10,26 +10,12 @@ public class CustomJsonDeserializer {
 
 
     private JsonNode rootNode;
+    private Boolean testNumber;
 
-    public CustomJsonDeserializer(JsonNode rootNode) {
+    public CustomJsonDeserializer(JsonNode rootNode, Boolean testNumber) {
         this.rootNode = rootNode;
-    }
-
-    //for viewing the structure of JSON is usefull this online tool: http://jsonviewer.stack.hu/
-    public List<String> getClauseArray() {
-        List<String> clause = new ArrayList<String>();
-        try {
-            ArrayNode arrayNode = (ArrayNode) rootNode.at("/validationProfile/rules");
-            JsonNode arrayElement;
-            for (int i = 0; i < arrayNode.size(); i++) {
-                arrayElement = arrayNode.get(i).at("/ruleId");
-                clause.add(arrayElement.get("clause").asText());
-            }
-            return clause;
-        } catch (ClassCastException e) {
-            e.getMessage();
-            return clause;
-        }
+        //"testNumber="true" if exceptions in config.yml solve parameters testNumber
+        this.testNumber = testNumber;
     }
 
     public String getAttributeValueFromRoot(String attribute) {
@@ -50,7 +36,12 @@ public class CustomJsonDeserializer {
             JsonNode arrayElement;
             for (int i = 0; i < arrayNode.size(); i++) {
                 arrayElement = arrayNode.get(i).at("/ruleId");
-                testAsserrion.add(arrayElement.get("clause").asText());
+                if (testNumber) {
+                    testAsserrion.add(arrayElement.get("clause").asText() + "-" + arrayElement.get("testNumber").asText());
+                } else {
+                    testAsserrion.add(arrayElement.get("clause").asText());
+                }
+
             }
             return testAsserrion;
         }

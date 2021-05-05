@@ -29,6 +29,7 @@ public class CustomResponse implements Serializable {
         this.customRuleEvalInstance = customRuleEvalInstance;
     }
 
+    //*** toJsonString místo response()
     public String response() throws JsonProcessingException {
         customRuleEvalInstance.performDifferenceRuleViolation();
         compliant = customRuleEvalInstance.getCompliant();

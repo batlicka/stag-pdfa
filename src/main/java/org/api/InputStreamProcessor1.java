@@ -14,12 +14,12 @@ import java.security.NoSuchAlgorithmException;
 
 @Getter
 @Setter
-public class InputStreamProcessor {
+public class InputStreamProcessor1 {
     private String Sha1Hex = "";
     private String fullPathIncludedPdfName = "";
     private String pathToSentFilesFolder = "";
 
-    public InputStreamProcessor(String pathToSentFilesFolder) {
+    public InputStreamProcessor1(String pathToSentFilesFolder) {
         this.pathToSentFilesFolder = pathToSentFilesFolder;
     }
 
@@ -31,6 +31,7 @@ public class InputStreamProcessor {
 
         File targetFile = new File(fullPathIncludedTempPdfName);
         OutputStream outputStream = new FileOutputStream(targetFile);
+        //***odstranit odkaz
         //https://www.baeldung.com/convert-input-stream-to-a-file
         byte[] buffer = new byte[8 * 1024];
         int bytesRead;

@@ -19,6 +19,7 @@ server:
 
 stagpdfa:
   exceptions:
+  #Exceptions can be defined with specific testNumber like this - 6.1.2-1 or generally - 6.1.2
     - 6.1.2
     - 6.3.2
     - 6.1.7
@@ -44,8 +45,8 @@ stagpdfa:
     #parameters: deff, f31, f32, f4, f5, f6
     - f5
   inputStramProcessor:
-    #parameters: InputStreamProcessor, oldInputStreamProcessor
-    - InputStreamProcessor
+    #parameters: InputStreamProcessor1, InputStreamProcessor2, switchoff
+    - InputStreamProcessor1
   javaMail:
    - skautfoto@vagunda.eu               #user - is used only if "user_authentization"==true
    - portal35                           #pass - is used only if "user_authentization"==true"
