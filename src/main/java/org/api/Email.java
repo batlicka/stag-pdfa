@@ -10,12 +10,12 @@ import java.util.Properties;
 public class Email {
     //*** odstranit komentaře s heslama
     private Properties prop = System.getProperties();
-    private String user;// = "skautfoto@vagunda.eu";//v_vagunda@utb.cz
-    private String pass;// = "portal35";
-    private String from;// = "skautfoto@vagunda.eu";//v_vagunda@utb.cz
-    private String to;// = "vojta@vagunda.eu";
-    private String host;// = "smtp.gmail.com";//smtp.utb.cz
-    private String port;// = "587";//google 587
+    private String user;
+    private String pass;
+    private String from;
+    private String to;
+    private String host;
+    private String port;
     private Boolean authentization;
     private Session session;
 
