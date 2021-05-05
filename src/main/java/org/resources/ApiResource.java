@@ -69,6 +69,7 @@ public final class ApiResource {
                 .build();
     }
 
+    //***odstranit {profileId} a nahrdit obyčejným auto
     @POST
     @Path("/validate/{profileId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
