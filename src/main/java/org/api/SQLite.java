@@ -18,7 +18,7 @@ public class SQLite {
         request_timestamp,
     }
 
-    private String sqlCreateQuery = String.format("create table stagpdfa_logs (%s text, %s text, %s integer, %s integer, %s integer, %s text, %s TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)",
+    private String sqlCreateQuery = String.format("create table stagpdfa_logs (%s text, %s text, %s integer, %s integer, %s integer, %s text, %s text)",
             columns.sha1,
             columns.verapdf_rest_response,
             columns.request_time,
@@ -87,7 +87,8 @@ public class SQLite {
         }
     }
 
-    public void insertStagpdfaLogs(String sha1, String verapdf_rest_response, Integer request_time, Integer verapdf_rest_request_time, Integer status_code, String error_message) {
+
+    public void insertStagpdfaLogs(String sha1, String datetime) {
         //https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
         Connection connection = null;
         try {
@@ -98,16 +99,11 @@ public class SQLite {
                 statement = connection.createStatement();
                 statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-                String sqlInsertQuery = String.format("INSERT INTO stagpdfa_logs (%s ,%s, %s, %s, %s, %s) VALUES (?,?,?,?,?,?)", columns.sha1, columns.verapdf_rest_response, columns.request_time, columns.verapdf_rest_request_time, columns.status_code, columns.error_message, columns.request_timestamp);
+                String sqlInsertQuery = String.format("INSERT INTO stagpdfa_logs(%s, %s) VALUES (?,?)", columns.sha1, columns.request_timestamp);
                 PreparedStatement pstmt = connection.prepareStatement(sqlInsertQuery);
 
-                //https://stackoverflow.com/questions/17207088/how-to-use-java-variable-to-insert-values-to-mysql-table
                 pstmt.setString(1, sha1);
-                pstmt.setString(2, verapdf_rest_response);
-                pstmt.setInt(3, request_time);
-                pstmt.setInt(4, verapdf_rest_request_time);
-                pstmt.setInt(5, status_code);
-                pstmt.setString(6, error_message);
+                pstmt.setString(2, datetime);
                 pstmt.executeUpdate();
 
                 pstmt.close();
@@ -136,8 +132,7 @@ public class SQLite {
         }
     }
 
-    public void insertStagpdfaLogs(String sha1) {
-        //https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
+    public void updateStagpdfaLogs(String verapdf_rest_response, Integer request_time, Integer verapdf_rest_request_time, Integer status_code, String error_message, String datetime) {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(databaseUrlJdbc);
@@ -147,49 +142,7 @@ public class SQLite {
                 statement = connection.createStatement();
                 statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-                String sqlInsertQuery = String.format("INSERT INTO stagpdfa_logs (%s) VALUES (?)", columns.sha1);
-                PreparedStatement pstmt = connection.prepareStatement(sqlInsertQuery);
-
-                pstmt.setString(1, sha1);
-                pstmt.executeUpdate();
-
-                pstmt.close();
-            } catch (SQLException e) {
-                System.err.println(ExceptionUtils.getStackTrace(e));
-            } finally {
-                try {
-                    if (statement != null)
-                        statement.close();
-
-                } catch (SQLException e) {
-                    // connection close failed.
-                    System.err.println(ExceptionUtils.getStackTrace(e));
-                }
-            }
-        } catch (SQLException sql) {
-            System.err.println(ExceptionUtils.getStackTrace(sql));
-        } finally {
-            try {
-                if (connection != null)
-                    connection.close();
-            } catch (SQLException e) {
-                // connection close failed.
-                System.err.println(ExceptionUtils.getStackTrace(e));
-            }
-        }
-    }
-
-    public void updateStagpdfaLogs(String verapdf_rest_response, Integer request_time, Integer verapdf_rest_request_time, Integer status_code, String error_message, String sha1) {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(databaseUrlJdbc);
-            Statement statement = null;
-            // create a database connection
-            try {
-                statement = connection.createStatement();
-                statement.setQueryTimeout(30);  // set timeout to 30 sec.
-
-                String sqlInsertQuery = String.format("UPDATE stagpdfa_logs SET %s=(?), %s=(?), %s=(?), %s=(?), %s=(?) WHERE %s=(?)", columns.verapdf_rest_response, columns.request_time, columns.verapdf_rest_request_time, columns.status_code, columns.error_message, columns.sha1);
+                String sqlInsertQuery = String.format("UPDATE stagpdfa_logs SET %s=(?), %s=(?), %s=(?), %s=(?), %s=(?) WHERE %s=(?)", columns.verapdf_rest_response, columns.request_time, columns.verapdf_rest_request_time, columns.status_code, columns.error_message, columns.request_timestamp);
                 PreparedStatement pstmt = connection.prepareStatement(sqlInsertQuery);
 
                 //https://stackoverflow.com/questions/17207088/how-to-use-java-variable-to-insert-values-to-mysql-table
@@ -199,7 +152,7 @@ public class SQLite {
                 pstmt.setInt(3, verapdf_rest_request_time);
                 pstmt.setInt(4, status_code);
                 pstmt.setString(5, error_message);
-                pstmt.setString(6, sha1);
+                pstmt.setString(6, datetime);
 
                 pstmt.executeUpdate();
 

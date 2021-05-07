@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -82,6 +83,7 @@ public final class ApiResource {
         }
 
         String nameForPdf = "";
+        String datetime = "";
         //default value of status code is 0, during running of program it is set on proper value
         InputStream inputStreamFromClass;
         Email email = new Email(emailProperties);
@@ -104,7 +106,9 @@ public final class ApiResource {
             }
 
             //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
-            databaseInstance.insertStagpdfaLogs(nameForPdf);
+            datetime = new Timestamp(System.currentTimeMillis()).toString();
+            databaseInstance.insertStagpdfaLogs(nameForPdf, datetime);
+
 
             client.createRequest(testSwitch, inputStreamFromClass);
             client.sendRequest();
@@ -122,7 +126,8 @@ public final class ApiResource {
         request_time.stop();
 
         //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
-        databaseInstance.updateStagpdfaLogs(client.getVera_pdf_rest_response(), (int) request_time.getTime(TimeUnit.MILLISECONDS), (int) client.getVerapdf_rest_request_time().getTime(TimeUnit.MILLISECONDS), client.getStatusCode(), client.getErrorMessage(), nameForPdf);
+        //update last inserted record
+        databaseInstance.updateStagpdfaLogs(client.getVera_pdf_rest_response(), (int) request_time.getTime(TimeUnit.MILLISECONDS), (int) client.getVerapdf_rest_request_time().getTime(TimeUnit.MILLISECONDS), client.getStatusCode(), client.getErrorMessage(), datetime);
 
         Response response;
         if (client.getErrorMessage().isEmpty()) {
