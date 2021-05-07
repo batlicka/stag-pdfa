@@ -97,7 +97,7 @@ public class CustomHttpClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(responseString);
 
-            CustomJsonDeserializer des = new CustomJsonDeserializer(rootNode, ruleViolationExceptions.get(0).contains("-"));
+            CustomJsonDeserializer des = new CustomJsonDeserializer(rootNode);
             CustomRuleEvalutaion customRuleEvalInstance = new CustomRuleEvalutaion(ruleViolationExceptions, des.getViolatedRules(), des.getAttributeValueFromRoot("compliant"));
             CustomResponse responseCurrent = new CustomResponse(
                     des.getAttributeValueFromRoot("compliant"),
