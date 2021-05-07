@@ -23,7 +23,7 @@ public class InputStreamProcessor1 {
         this.pathToSentFilesFolder = pathToSentFilesFolder;
     }
 
-    public String saveFileAndClculateSHA1(InputStream uploadedInputStream) throws NoSuchAlgorithmException, IOException {
+    public String saveFileAndCalculateSHA1(InputStream uploadedInputStream) throws NoSuchAlgorithmException, IOException {
 
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
         digest.reset();

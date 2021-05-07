@@ -28,7 +28,7 @@ public final class ApiResource {
     private static String delayProcessingTheRequest;
     private static String testSwitch;
     private static String inputStreamProcessor;
-    private static ArrayList<String> emailPropertisies;
+    private static ArrayList<String> emailProperties;
 
     public ApiResource(Map stagpdfa) {
         //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
@@ -42,16 +42,7 @@ public final class ApiResource {
         this.delayProcessingTheRequest = this.stagpdfa.get("delayProcessingTheRequest").get(0);
         this.testSwitch = this.stagpdfa.get("testSwitch").get(0);
         this.inputStreamProcessor = this.stagpdfa.get("inputStramProcessor").get(0);
-        //***mailPropertisies překlep
-        this.emailPropertisies = new ArrayList<String>(this.stagpdfa.get("javaMail"));
-    }
-
-    //***odstranit test
-    @GET
-    @Path("/{PathParam}/test2")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getConstant(@PathParam("PathParam") String PathParam) {
-        return "This is your PathParameter: " + PathParam;
+        this.emailProperties = new ArrayList<String>(this.stagpdfa.get("javaMail"));
     }
 
     @GET
@@ -93,7 +84,7 @@ public final class ApiResource {
         String nameForPdf = "";
         //default value of status code is 0, during running of program it is set on proper value
         InputStream inputStreamFromClass;
-        Email email = new Email(emailPropertisies);
+        Email email = new Email(emailProperties);
         CustomHttpClient client = new CustomHttpClient(urlToVeraPDFrest);
         try {
             if (inputStreamProcessor.equals("InputStreamProcessor2")) {
@@ -104,8 +95,7 @@ public final class ApiResource {
                 inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
             } else if (inputStreamProcessor.equals("InputStreamProcessor1")) {
                 InputStreamProcessor1 ispInstance = new InputStreamProcessor1(pathToSentFilesFolder);
-                //*** saveFileAndClculateSHA1 chybí ačko
-                nameForPdf = ispInstance.saveFileAndClculateSHA1(uploadedInputStream);
+                nameForPdf = ispInstance.saveFileAndCalculateSHA1(uploadedInputStream);
                 //load input stream from file
                 inputStreamFromClass = ispInstance.createInputStreamFromFile();
             } else {
@@ -142,7 +132,7 @@ public final class ApiResource {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } else {
-            email.sendEamil(client.getErrorMessage());
+            email.sendEmail(client.getErrorMessage());
             response = Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"Error 500 Internal Server Error\"} ")
@@ -164,13 +154,13 @@ public final class ApiResource {
         if (testSwitch.equals("f5") || testSwitch.equals("f32") || testSwitch.equals("f4")) {
             if (testSwitch.equals("f5")) {
                 testResponseMessage = "{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
-                email.sendEamil(testResponseMessage);
+                email.sendEmail(testResponseMessage);
             } else if (testSwitch.equals("f32")) {
                 testResponseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
-                email.sendEamil(testResponseMessage);
+                email.sendEmail(testResponseMessage);
             } else if (testSwitch.equals("f4")) {
                 testResponseMessage = "{\"klic\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
-                email.sendEamil(testResponseMessage);
+                email.sendEmail(testResponseMessage);
             }
             response = Response
                     .status(Response.Status.OK)
@@ -181,7 +171,7 @@ public final class ApiResource {
             System.out.println("response Message returned to IS stag: ");
             testResponseMessage = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" /></head><body><h2>This is test response in html</h2></body></html>";
             System.out.println(testResponseMessage);
-            email.sendEamil(testResponseMessage);
+            email.sendEmail(testResponseMessage);
             response = Response
                     .status(Response.Status.OK)
                     .type(MediaType.TEXT_HTML)

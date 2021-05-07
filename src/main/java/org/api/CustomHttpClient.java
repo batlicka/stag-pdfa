@@ -15,7 +15,6 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -107,7 +106,7 @@ public class CustomHttpClient {
             );
 
             vera_pdf_rest_response = responseCurrent.getCompliant();
-            responseMessage = responseCurrent.response();
+            responseMessage = responseCurrent.toJsonString();
 
             //only for testing purpouse
             System.out.println("result after difference of sets: ");

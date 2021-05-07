@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 public class Email {
-    //*** odstranit komentaře s heslama
     private Properties prop = System.getProperties();
     private String user;
     private String pass;
@@ -22,7 +21,6 @@ public class Email {
     //https://stackoverflow.com/questions/46663/how-can-i-send-an-email-by-java-application-using-gmail-yahoo-or-hotmail
     //for gmail is needfull allow access for less secured applications: https://support.google.com/accounts/answer/6010255#zippy=%2Ckdy%C5%BE-je-v-%C3%BA%C4%8Dtu-zapnut%C3%BD-p%C5%99%C3%ADstup-pro-m%C3%A9n%C4%9B-zabezpe%C4%8Den%C3%A9-aplikace
     public Email(ArrayList<String> emailProperties) {
-        //***
         this.user = emailProperties.get(0);
         this.pass = emailProperties.get(1);
         this.from = emailProperties.get(2);
@@ -36,8 +34,7 @@ public class Email {
         prop.put("mail.smtp.host", host);
     }
 
-    //*** sendEamil
-    public void sendEamil(String content) {
+    public void sendEmail(String content) {
         //Session session = Session.getDefaultInstance(prop);
         if ((authentization)) {
             prop.put("mail.smtp.auth", true);

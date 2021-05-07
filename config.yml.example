@@ -54,4 +54,4 @@ stagpdfa:
    - vojta@vagunda.eu                   #to
    - smtp.utb.cz                        #host - for gmail: smtp.gmail.com
    - 25                                 #port - for gmail: 587
-   - false                              #user_authentization - If "host"==smtp.utb.cz then set "user_authentization" on {false} in other cases set on {true}
+   - false                              #authentization - If "host"==smtp.utb.cz then set "user_authentization" on {false} in other cases set on {true}
