@@ -18,7 +18,7 @@ public class SQLite {
         request_timestamp,
     }
 
-    private String sqlCreateQuery = String.format("create table stagpdfa_logs (%s text, %s text, %s integer, %s integer, %s integer, %s text, %s String)",
+    private String sqlCreateQuery = String.format("create table stagpdfa_logs (%s text, %s text, %s integer, %s integer, %s integer, %s text, %s text)",
             columns.sha1,
             columns.verapdf_rest_response,
             columns.request_time,
