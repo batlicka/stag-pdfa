@@ -18,7 +18,7 @@ public class SQLite {
         request_timestamp,
     }
 
-    private String sqlCreateQuery = String.format("create table stagpdfa_logs (%s text, %s text, %s integer, %s integer, %s integer, %s text, %s text)",
+    private String sqlCreateQuery = String.format("create table stagpdfa_logs (%s text, %s text, %s integer, %s integer, %s integer, %s text, %s TIMESTAMPTZ)",
             columns.sha1,
             columns.verapdf_rest_response,
             columns.request_time,
@@ -88,7 +88,7 @@ public class SQLite {
     }
 
 
-    public void insertStagpdfaLogs(String sha1, String datetime) {
+    public void insertStagpdfaLogs(String sha1, Timestamp datetime) {
         //https://shinesolutions.com/2007/08/04/how-to-close-jdbc-resources-properly-every-time/
         Connection connection = null;
         try {
@@ -103,7 +103,7 @@ public class SQLite {
                 PreparedStatement pstmt = connection.prepareStatement(sqlInsertQuery);
 
                 pstmt.setString(1, sha1);
-                pstmt.setString(2, datetime);
+                pstmt.setTimestamp(2, datetime);
                 pstmt.executeUpdate();
 
                 pstmt.close();
@@ -132,7 +132,7 @@ public class SQLite {
         }
     }
 
-    public void updateStagpdfaLogs(String verapdf_rest_response, Integer request_time, Integer verapdf_rest_request_time, Integer status_code, String error_message, String datetime) {
+    public void updateStagpdfaLogs(String verapdf_rest_response, Integer request_time, Integer verapdf_rest_request_time, Integer status_code, String error_message, Timestamp datetime) {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(databaseUrlJdbc);
@@ -152,7 +152,7 @@ public class SQLite {
                 pstmt.setInt(3, verapdf_rest_request_time);
                 pstmt.setInt(4, status_code);
                 pstmt.setString(5, error_message);
-                pstmt.setString(6, datetime);
+                pstmt.setTimestamp(6, datetime);
 
                 pstmt.executeUpdate();
 

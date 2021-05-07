@@ -83,7 +83,8 @@ public final class ApiResource {
         }
 
         String nameForPdf = "";
-        String datetime = "";
+        //Timestamp(System.currentTimeMillis()).toString();
+        Timestamp datetime = new Timestamp(System.currentTimeMillis());//System.currentTimeMillis()
         //default value of status code is 0, during running of program it is set on proper value
         InputStream inputStreamFromClass;
         Email email = new Email(emailProperties);
@@ -106,7 +107,6 @@ public final class ApiResource {
             }
 
             //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
-            datetime = new Timestamp(System.currentTimeMillis()).toString();
             databaseInstance.insertStagpdfaLogs(nameForPdf, datetime);
 
 
