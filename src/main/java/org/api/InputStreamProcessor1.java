@@ -14,7 +14,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Getter
 @Setter
-public class InputStreamProcessor1 {
+public class InputStreamProcessor1 implements InputStreamProcessor {
     private String Sha1Hex = "";
     private String fullPathIncludedPdfName = "";
     private String pathToSentFilesFolder = "";
@@ -49,7 +49,7 @@ public class InputStreamProcessor1 {
         return Sha1Hex;
     }
 
-    public InputStream createInputStreamFromFile() throws FileNotFoundException {
+    public InputStream createInputStream() throws FileNotFoundException {
         //load input stream from file
         File savedFile = new File(fullPathIncludedPdfName);
         InputStream fileInputStream = new FileInputStream(savedFile);
