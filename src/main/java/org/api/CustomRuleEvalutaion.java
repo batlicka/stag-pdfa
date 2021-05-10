@@ -23,11 +23,15 @@ public class CustomRuleEvalutaion {
     }
 
     public void performDifferenceRuleViolation() {
-        //decision logic agreed on google docs
         if (compliant.equalsIgnoreCase("true")) {
             //do nothing special
         } else {
+            //remove direct rules
             ruleViolation.removeAll(ruleViolationExceptions);
+            //remove all subset rules
+            for (String rule : ruleViolationExceptions) {
+                ruleViolation.removeIf(n -> n.contains(rule));
+            }
             if (ruleViolation.isEmpty()) {
                 compliant = "true";
             } else {

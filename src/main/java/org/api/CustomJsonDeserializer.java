@@ -10,12 +10,10 @@ public class CustomJsonDeserializer {
 
 
     private JsonNode rootNode;
-    private Boolean testNumber;
 
-    public CustomJsonDeserializer(JsonNode rootNode, Boolean testNumber) {
+    public CustomJsonDeserializer(JsonNode rootNode) {
         this.rootNode = rootNode;
         //"testNumber="true" if exceptions in config.yml solve parameters testNumber
-        this.testNumber = testNumber;
     }
 
     public String getAttributeValueFromRoot(String attribute) {
@@ -36,12 +34,7 @@ public class CustomJsonDeserializer {
             JsonNode arrayElement;
             for (int i = 0; i < arrayNode.size(); i++) {
                 arrayElement = arrayNode.get(i).at("/ruleId");
-                if (testNumber) {
-                    testAsserrion.add(arrayElement.get("clause").asText() + "-" + arrayElement.get("testNumber").asText());
-                } else {
-                    testAsserrion.add(arrayElement.get("clause").asText());
-                }
-
+                testAsserrion.add(arrayElement.get("clause").asText() + "-" + arrayElement.get("testNumber").asText());
             }
             return testAsserrion;
         }
