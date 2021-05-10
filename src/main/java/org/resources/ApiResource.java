@@ -91,16 +91,15 @@ public final class ApiResource {
         CustomHttpClient client = new CustomHttpClient(urlToVeraPDFrest);
         try {
             if (inputStreamProcessor.equals("InputStreamProcessor2")) {
-                //*** InputStreamProcessor - stemetody
-                InputStreamProcessor2 oldispInstance = new InputStreamProcessor2(pathToSentFilesFolder);
-                nameForPdf = oldispInstance.saveFileAndCalculateSHA1(uploadedInputStream);
+                InputStreamProcessor isp = new InputStreamProcessor2(pathToSentFilesFolder);
+                nameForPdf = isp.saveFileAndCalculateSHA1(uploadedInputStream);
                 //load input stream from bytesArray
-                inputStreamFromClass = oldispInstance.createInputStreamFrombytesArrayuploadedInputStream();
+                inputStreamFromClass = isp.createInputStream();
             } else if (inputStreamProcessor.equals("InputStreamProcessor1")) {
-                InputStreamProcessor1 ispInstance = new InputStreamProcessor1(pathToSentFilesFolder);
-                nameForPdf = ispInstance.saveFileAndCalculateSHA1(uploadedInputStream);
+                InputStreamProcessor isp = new InputStreamProcessor1(pathToSentFilesFolder);
+                nameForPdf = isp.saveFileAndCalculateSHA1(uploadedInputStream);
                 //load input stream from file
-                inputStreamFromClass = ispInstance.createInputStreamFromFile();
+                inputStreamFromClass = isp.createInputStream();
             } else {
                 //switch off saveing processed file on disk and calculating sha1
                 inputStreamFromClass = uploadedInputStream;

@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class InputStreamProcessor2 {
+public class InputStreamProcessor2 implements InputStreamProcessor {
     private String Sha1Hex = "";
     private String fullPathIncludedPdfName = "";
     private String pathToSentFilesFolder;
@@ -52,7 +52,7 @@ public class InputStreamProcessor2 {
         }
     }
 
-    public InputStream createInputStreamFrombytesArrayuploadedInputStream() {
+    public InputStream createInputStream() {
         InputStream firstCloneUploadedInputStream = new ByteArrayInputStream(bytesArrayuploadedInputStream);
         return firstCloneUploadedInputStream;
     }
