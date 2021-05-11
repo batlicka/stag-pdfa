@@ -11,6 +11,17 @@ How to start the stag-pdfa application
 3. Start application with `java -jar target/dropwizard-1.0-SNAPSHOT.jar server config.yml`
 4. To check that your application is running enter url `http://localhost:8080/api/ok`
 
+Endpoints
+---
+
+1. GET /api/ok
+
+- Can be test using curl command: `curl localhost:8080/api/ok`
+
+2. POST /api/validate/auto
+
+- Can be test using curl command: `curl -s -F"file=@D:\dokumenty\test.pdf" localhost:8080/api/validate/auto`
+
 Health Check
 ---
 

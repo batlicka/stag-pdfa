@@ -61,11 +61,10 @@ public final class ApiResource {
     }
 
     @POST
-    @Path("/validate/{profileId}")
+    @Path("/validate/auto")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({MediaType.APPLICATION_JSON})
-    public static Response savePdf(@PathParam("profileId") String profileId,
-                                   @FormDataParam("file") InputStream uploadedInputStream) {
+    public static Response savePdf(@FormDataParam("file") InputStream uploadedInputStream) {
 
         //time of processing on stag-pdfa
         StopWatch request_time = StopWatch.createStarted();
