@@ -12,7 +12,6 @@ public class InputStreamProcessor2 implements InputStreamProcessor {
     private String fullPathIncludedPdfName = "";
     private String pathToSentFilesFolder;
     private byte[] bytesArrayuploadedInputStream;
-    private InputStream firstCloneUploadedInputStream;
 
     public InputStreamProcessor2(String pathToSentFilesFolder) {
         this.pathToSentFilesFolder = pathToSentFilesFolder;
