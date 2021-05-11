@@ -76,10 +76,6 @@ public class CustomHttpClient {
 
         String responseString = new BasicResponseHandler().handleResponse(response);
         //System.out.println(responseString);
-        /*FileOutputStream outputStream = new FileOutputStream("D:\\tmp\\stag-pdfa_out.txt");
-        byte[] strToBytes = responseString.getBytes();
-        outputStream.write(strToBytes);
-        outputStream.close();*/
 
         //https://stackoverflow.com/questions/9077933/how-to-find-http-media-type-mime-type-from-response
         HttpEntity entity = response.getEntity();

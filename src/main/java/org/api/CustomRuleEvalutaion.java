@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @Getter
 public class CustomRuleEvalutaion {
     //explanation of @JsonIgnore
-    //https://www.baeldung.com/jackson-annotations
+    //source: https://www.baeldung.com/jackson-annotations
     @JsonIgnore
     private ArrayList<String> ruleViolationExceptions;
     @JsonIgnore
@@ -24,7 +24,7 @@ public class CustomRuleEvalutaion {
 
     public void performDifferenceRuleViolation() {
         if (compliant.equalsIgnoreCase("true")) {
-            //do nothing special
+            //let "compliant" attribute unchanged
         } else {
             //remove direct rules
             ruleViolation.removeAll(ruleViolationExceptions);

@@ -31,8 +31,7 @@ public class InputStreamProcessor1 implements InputStreamProcessor {
 
         File targetFile = new File(fullPathIncludedTempPdfName);
         OutputStream outputStream = new FileOutputStream(targetFile);
-        //***odstranit odkaz
-        //https://www.baeldung.com/convert-input-stream-to-a-file
+        //source: https://www.baeldung.com/convert-input-stream-to-a-file
         byte[] buffer = new byte[8 * 1024];
         int bytesRead;
         while ((bytesRead = uploadedInputStream.read(buffer)) != -1) {
@@ -52,8 +51,7 @@ public class InputStreamProcessor1 implements InputStreamProcessor {
     public InputStream createInputStream() throws FileNotFoundException {
         //load input stream from file
         File savedFile = new File(fullPathIncludedPdfName);
-        InputStream fileInputStream = new FileInputStream(savedFile);
-        return fileInputStream;
+        return new FileInputStream(savedFile);
     }
 
     public void RenameFile(File targetFile) throws SecurityException, NullPointerException {

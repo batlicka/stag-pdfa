@@ -13,7 +13,6 @@ public class CustomJsonDeserializer {
 
     public CustomJsonDeserializer(JsonNode rootNode) {
         this.rootNode = rootNode;
-        //"testNumber="true" if exceptions in config.yml solve parameters testNumber
     }
 
     public String getAttributeValueFromRoot(String attribute) {

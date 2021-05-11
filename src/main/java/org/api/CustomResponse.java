@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 public class CustomResponse implements Serializable {
     private String compliant;
-    //explanation of @JsonIgnore
     //source: https://www.baeldung.com/jackson-annotations
     private String pdfaflavour;
     CustomRuleEvalutaion customRuleEvalInstance;

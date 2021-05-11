@@ -18,7 +18,6 @@ public class DropwizardConfiguration extends Configuration {
     @Valid
     @NotNull
     private Map<String, List<String>> stagpdfa = Collections.emptyMap();
-    //private Map<String, Map<String, String>> viewRendererConfiguration = Collections.e;
 
     @JsonProperty
     public Map<String, List<String>> getStagpdfa() {

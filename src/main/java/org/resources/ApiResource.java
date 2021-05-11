@@ -32,8 +32,8 @@ public final class ApiResource {
     private static ArrayList<String> emailProperties;
 
     public ApiResource(Map stagpdfa) {
-        //https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
-        //https://stackoverflow.com/questions/13581997/how-get-value-from-linkedhashmap-based-on-index-not-on-key?answertab=votes#tab-top
+        //source: https://stackoverflow.com/questions/49771099/how-to-get-string-from-config-yml-file-in-dropwizard-resource
+        //source: https://stackoverflow.com/questions/13581997/how-get-value-from-linkedhashmap-based-on-index-not-on-key?answertab=votes#tab-top
 
         this.stagpdfa = new LinkedHashMap<String, List<String>>(stagpdfa);
         ruleViolationExceptions = new ArrayList<String>(this.stagpdfa.get("exceptions"));
@@ -50,8 +50,7 @@ public final class ApiResource {
     @Path("/ok")
     @Produces(MediaType.APPLICATION_JSON)//APPLICATION_JSON
     public Response getOkResponse() {
-        //***odstranit zdroj
-        //https://www.baeldung.com/jax-rs-response
+        //source: https://www.baeldung.com/jax-rs-response
         String message = "{\"hello\": \"This is a JSON response\"}";
 
         return Response
@@ -61,14 +60,11 @@ public final class ApiResource {
                 .build();
     }
 
-    //***odstranit {profileId} a nahrdit obyčejným auto
     @POST
-    @Path("/validate/{profileId}")
+    @Path("/validate/auto")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({MediaType.APPLICATION_JSON})
-    public static Response savePdf(@PathParam("profileId") String profileId,
-                                   @FormDataParam("sha1Hex") String sha1Hex,
-                                   @FormDataParam("file") InputStream uploadedInputStream) {
+    public static Response savePdf(@FormDataParam("file") InputStream uploadedInputStream) {
 
         //time of processing on stag-pdfa
         StopWatch request_time = StopWatch.createStarted();
@@ -83,9 +79,7 @@ public final class ApiResource {
         }
 
         String nameForPdf = "";
-        //Timestamp(System.currentTimeMillis()).toString();
         Timestamp datetime = new Timestamp(System.currentTimeMillis());//System.currentTimeMillis()
-        //default value of status code is 0, during running of program it is set on proper value
         InputStream inputStreamFromClass;
         Email email = new Email(emailProperties);
         CustomHttpClient client = new CustomHttpClient(urlToVeraPDFrest);
@@ -105,7 +99,7 @@ public final class ApiResource {
                 inputStreamFromClass = uploadedInputStream;
             }
 
-            //create log to logging table, are logged: nameForPDF and Timestamp(logged automatically)
+            //create log to logging table
             databaseInstance.insertStagpdfaLogs(nameForPdf, datetime);
 
 
@@ -124,7 +118,7 @@ public final class ApiResource {
         }
         request_time.stop();
 
-        //https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
+        //source: https://docs.oracle.com/cd/E19830-01/819-4721/beajw/index.html
         //update last inserted record
         databaseInstance.updateStagpdfaLogs(client.getVera_pdf_rest_response(), (int) request_time.getTime(TimeUnit.MILLISECONDS), (int) client.getVerapdf_rest_request_time().getTime(TimeUnit.MILLISECONDS), client.getStatusCode(), client.getErrorMessage(), datetime);
 
@@ -151,18 +145,17 @@ public final class ApiResource {
         return response;
     }
 
-
+    //Set of tests for finding out, how IS/STAGT cope with unexpect responeses of stag-pdfa
     public static Response setTestFaultyResponseMessage(Email email, Response response) {
-        //*** dopsat poznamky co se čím testuje
         String testResponseMessage = "";
         if (testSwitch.equals("f5") || testSwitch.equals("f32") || testSwitch.equals("f4")) {
-            if (testSwitch.equals("f5")) {
+            if (testSwitch.equals("f5")) {//TEST f5 - Shape of response is JSON: Key is as expected, value is unexpected.
                 testResponseMessage = "{\"compliant\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
                 email.sendEmail(testResponseMessage);
-            } else if (testSwitch.equals("f32")) {
+            } else if (testSwitch.equals("f32")) {//TEST f32 - Shape of response is JSON: Key is missing, value is unexpected.
                 testResponseMessage = "{\"Response from veraPDF wasn't in Content-type: application/json \"}";
                 email.sendEmail(testResponseMessage);
-            } else if (testSwitch.equals("f4")) {
+            } else if (testSwitch.equals("f4")) {//TEST f4 - Shape of response is JSON: Key is unexpected, value is unexpected.
                 testResponseMessage = "{\"klic\": \"Response from veraPDF wasn't in Content-type: application/json \"}";
                 email.sendEmail(testResponseMessage);
             }
@@ -171,7 +164,7 @@ public final class ApiResource {
                     .entity(testResponseMessage)
                     .type(MediaType.APPLICATION_JSON)
                     .build();
-        } else if (testSwitch.equals("f31")) {
+        } else if (testSwitch.equals("f31")) {//Shape of response is HTML
             System.out.println("response Message returned to IS stag: ");
             testResponseMessage = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" /></head><body><h2>This is test response in html</h2></body></html>";
             System.out.println(testResponseMessage);

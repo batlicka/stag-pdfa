@@ -7,7 +7,6 @@ import io.dropwizard.setup.Environment;
 import org.resources.ApiResource;
 
 public class DropwizardApplication extends Application<DropwizardConfiguration> {
-
     public static void main(final String[] args) throws Exception {
         new DropwizardApplication().run(args);
     }

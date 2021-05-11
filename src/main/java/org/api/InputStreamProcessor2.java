@@ -19,8 +19,7 @@ public class InputStreamProcessor2 implements InputStreamProcessor {
     }
 
     public String saveFileAndCalculateSHA1(InputStream uploadedInputStream) throws IOException {
-        //https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
-        //saveing of uploadedInputStream to pdf in local folder
+        //source: https://stackoverflow.com/questions/5923817/how-to-clone-an-inputstream
         //create byte array from accepted uploadedInputStream
         bytesArrayuploadedInputStream = IOUtils.toByteArray(uploadedInputStream);
 
@@ -38,7 +37,7 @@ public class InputStreamProcessor2 implements InputStreamProcessor {
     }
 
     public String calculateSha1Hex(byte[] bytesArrayuploadedInputStream) {
-        //https://www.baeldung.com/convert-input-stream-to-array-of-bytes
+        //source: https://www.baeldung.com/convert-input-stream-to-array-of-bytes
         String Sha1Hex = "";
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
