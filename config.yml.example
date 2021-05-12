@@ -48,8 +48,8 @@ stagpdfa:
     #parameters: InputStreamProcessor1, InputStreamProcessor2, switchoff
     - InputStreamProcessor1
   javaMail:
-   - skautfoto@vagunda.eu               #user - is used only if "user_authentization"==true
-   - portal35                           #pass - is used only if "user_authentization"==true"
+   - stag.pdfa@gmail.com                #user - is used only if "user_authentization"==true
+   - Stag.Pdfa1J*                       #pass - is used only if "user_authentization"==true"
    - v_vagunda@utb.cz                   #from
    - vojta@vagunda.eu                   #to
    - smtp.utb.cz                        #host - for gmail: smtp.gmail.com
