@@ -7,9 +7,13 @@ How to start the stag-pdfa application
    of Maven all is ok. If is returned something like: "command line is not recognized", then is needfull to install
    Maven. Following link can be helpfull.
    https://mkyong.com/maven/how-to-install-maven-in-windows/
-2. Run `mvn clean install` to build your application
-3. Start application with `java -jar target/dropwizard-1.0-SNAPSHOT.jar server config.yml`
-4. To check that your application is running enter url `http://localhost:8080/api/ok`
+2. Rename the file config.yml.example on config.yml
+3. Set content of config.yml in order it suit you OS.
+    - on Windows: Is needful to reset only property `pathToSentFilesFolder`
+    - on Linux: Is needful to reset properties `pathToSentFilesFolder`, `urlToVeraPDFrest`, `databaseUrlJdbc`
+4. To build application type command `mvn clean package`
+5. Start application with `java -jar target/dropwizard-1.0-SNAPSHOT.jar server config.yml`
+6. To check that your application is running enter url `http://localhost:8080/api/ok`
 
 Endpoints
 ---
