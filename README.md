@@ -8,7 +8,7 @@ How to start the stag-pdfa application
    Maven. Following link can be helpfull.
    https://mkyong.com/maven/how-to-install-maven-in-windows/
 2. Rename the file config.yml.example on config.yml
-3. Set content of config.yml in order it suit you OS.
+3. Set content of config.yml in order it suit your OS.
     - on Windows: Is needful to reset only property `pathToSentFilesFolder`
     - on Linux: Is needful to reset properties `pathToSentFilesFolder`, `urlToVeraPDFrest`, `databaseUrlJdbc`
 4. To build application type command `mvn clean package`
